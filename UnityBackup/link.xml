@@ -1,0 +1,7 @@
+<linker>
+  <assembly fullname="ButtplugSong">
+    <type fullname="WaveDisplay" preserve="all"/>
+    <type fullname="WaveDisplay+UxmlSerializedData" preserve="all"/>
+    <type fullname="WaveDisplay+UxmlTraits" preserve="all"/>
+  </assembly>
+</linker>
