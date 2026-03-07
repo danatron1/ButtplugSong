@@ -216,6 +216,9 @@ internal class GUIManager : MonoBehaviour
         Timer.SetToPreset(preset);
         Presets.SetToPreset(preset);
         StopVibes.SetToPreset(preset);
+
+        Network.SetToPreset(preset);
+        UISettings.SetToPreset(preset);
     }
 
     #region Hooks
@@ -231,7 +234,7 @@ internal class GUIManager : MonoBehaviour
         VibeDisplay.SetClassListIf("punctuating", x => Vibe.Logic.Punctuating);
     }
     #endregion
-    private const int MAX_VIBELOG_ENTRIES = 200;
+    private const int MAX_VIBELOG_ENTRIES = 50;
     private DateTime? _lastLogEntry = null;
     public void LogActivity(object generalMessage) => LogActivity("Debug Message", generalMessage.ToString());
     public void LogActivity(string sourceLine, string vibeLine) => LogActivity(sourceLine, vibeLine, -1);

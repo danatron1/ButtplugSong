@@ -3,6 +3,7 @@ using ButtplugSong.Helper;
 using GoodVibes;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.VibeSettings.LimitSettings;
@@ -49,7 +50,6 @@ internal class LimitsSettings : GUISection, IPresetLoadable
             new MinimumCursed(),
         ];
 
-
         Vibe.NeedsUpdate += Update;
     }
     public void SetToPreset(Preset preset)
@@ -69,8 +69,6 @@ internal class LimitsSettings : GUISection, IPresetLoadable
             ? "While multiple minimums are active, their minimum values are combined additively."
             : "While multiple minimums are active, the greatest minimum among them is used.";
     }
-
-    private float? _minLastFrame = null;
     private void Update(float realTime, float timerTime)
     {
         float minPower = GetMinPower();
@@ -79,18 +77,7 @@ internal class LimitsSettings : GUISection, IPresetLoadable
     private float GetMinPower()
     {
         float min = _minimumsStack.value ? Minimums.Sum(x => x.Minimum) : Minimums.Max(x => x.Minimum);
-        min = min.Clamp(0, Vibe.Logic.MaxPower); //never exceed the maximum
-        if (_minLastFrame != min)
-        {
-
-            if (_minLastFrame.HasValue && _minLastFrame.Value < min && min > 0)
-            {
-                MinimumBase modifyingMinimum = Minimums.OrderByDescending(x => x.Minimum).First();
-                Vibe.UI.LogActivity($"Minimum Increased : {modifyingMinimum.Identifier}", $"Minimum power increased ({_minLastFrame * 100:f0}% -> {min * 100:f0}%)");
-            }
-        }
-        _minLastFrame = min;
-        return min;
+        return min.Clamp(0, Vibe.Logic.MaxPower); //never exceed the maximum
     }
 
     private void MasterMaxPowerChanged(ChangeEvent<float> evt) => Vibe.Logic.MaxPower = MasterMaxPower;
