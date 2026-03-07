@@ -143,7 +143,7 @@ internal class TimerSettings : GUISection, IPresetLoadable
         return mode switch
         {
             CountdownMode.Always => "\"Always\": Always counts down (unless the game freezes, i.e. when loading).",
-            CountdownMode.Default => "\"Default\": Counts down whenever the game simulates time (includes main menu, excludes pausing).",
+            CountdownMode.Default => "\"Default\": Counts down when time is simulated (includes main menu, excludes pausing).",
             CountdownMode.InGame => "\"In Game\": excludes non-gameplay scenes like the main menu, but includes pausing.",
             CountdownMode.Unpaused => "\"Unpaused\": stops the timer unless the game is playing (i.e. unpaused).",
             CountdownMode.SuperHot => "\"Super Hot\": the timer only moves when you move.",

@@ -85,9 +85,9 @@ internal static class ModHooks
 
     //Item pickup
     public static event Action<SavedItem, CollectableItemPickup>? OnItemPickupHook;
-    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.Start))]
+    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.DoPickupAction))]
     [HarmonyPrefix]
-    private static void OnItemPickup(CollectableItemPickup __instance)
+    private static void OnItemPickup(CollectableItemPickup __instance, bool breakIfAtMax)
     {
         var item = __instance.item;
         if (item == null) return;
@@ -111,15 +111,13 @@ internal static class ModHooks
     }
 
     //Controller rumble
-    public static event Action<string>? OnRumbleHook;
+    public static event Action<string?>? OnRumbleHook;
 
     [HarmonyPatch(typeof(VibrationManager), nameof(VibrationManager.PlayVibrationClipOneShot), typeof(VibrationData), typeof(VibrationTarget?), typeof(bool), typeof(string), typeof(bool))]
     [HarmonyPrefix]
     private static void OnPlayVibrationClipOneShot(ref VibrationData vibrationData, ref VibrationTarget? vibrationTarget, ref bool isLooping, ref string tag, ref bool isRealtime)
     {
-        OnRumbleHook?.Invoke(string.IsNullOrEmpty(tag) 
-            ? string.Join('-', new StackFrame(1).GetMethod().Name, new StackFrame(2).GetMethod().Name, new StackFrame(3).GetMethod().Name, new StackFrame(4).GetMethod().Name)  
-            : tag);
+        OnRumbleHook?.Invoke(tag);
     }
 
     //currency

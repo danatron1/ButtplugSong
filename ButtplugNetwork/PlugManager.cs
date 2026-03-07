@@ -41,6 +41,7 @@ public class PlugManager
     }
     public static event Action<ButtplugClientDevice>? DeviceConnected;
     public static event Action<ButtplugClientDevice>? DeviceDisconnected;
+    public static event Action? DisconnectedFromServer;
     public static event Action<float, bool>? UpdateDevicePower;
 
     //ButtplugManaged
@@ -212,6 +213,7 @@ public class PlugManager
         if (Status == PlugManagerStatus.ShutDown) return;
         if (_tryingToReconnect) return;
         Log("Disconnected from server.");
+        DisconnectedFromServer?.Invoke();
         _tryingToReconnect = true;
         for (int _retries = 1; _retries <= RetryAttempts; _retries++)
         {

@@ -1,5 +1,6 @@
 ﻿using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UIElements;
 
@@ -21,9 +22,14 @@ internal class MinimumCourier : MinimumBase
     }
     public override bool IsRelevant()
     {
-        var activeItems = DeliveryQuestItem.GetActiveItems();
-        if (activeItems == null) return false;
-        return activeItems.Any();
+        foreach (var quest in QuestManager.GetActiveQuests())
+        {
+            foreach (var target in quest.TargetsAndCounters)
+            {
+                if (target.target.Counter is DeliveryQuestItem) return true;
+            }
+        }
+        return false;
     }
     private void ItemBroken(DeliveryQuestItem item)
     {

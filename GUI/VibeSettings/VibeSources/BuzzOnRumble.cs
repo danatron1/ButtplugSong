@@ -1,12 +1,14 @@
 ﻿using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.VibeSettings.VibeSources;
 
 internal class BuzzOnRumble : VibeSourceWithPunctuate
 {
+    public const string UncategorisedRumbleEventName = "UncategorisedRumble";
 
     /*New vibe source checklist:
      * Add relevant modhooks in constructor, implement as you see fit, e.g:
@@ -23,7 +25,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
     protected override string _punctuateReminderDescription => "a rumble";
 
     private readonly Dictionary<string, WeightedEvent> RumbleEvents = new();
-    private readonly WeightedEvent UncategorisedRumbleEvent;
+    //private readonly WeightedEvent UncategorisedRumbleEvent;
 
     public BuzzOnRumble() : base("Rumble", false, 10, 1, false, 10)
     {
@@ -33,21 +35,24 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         ModHooks.OnRumbleHook += OnRumble;
 
         VisualElement parent = Get<Label>("RumbleEventsListLabel").parent;
-        int id = 0;
 
-        UncategorisedRumbleEvent = new("UncategorisedRumble", 1, _enabled, _scaleWithWeighting, false);
-        RumbleEvents["PlayFootStep"] =      CreateUI("Walking", 0.1f, false);
-        RumbleEvents["PlayWallJump"] =      CreateUI("WallJump", 0.5f, true);
-        RumbleEvents["PlayAirDash"] =       CreateUI("Dashing", 1, true);
-        RumbleEvents["StartShuttlecock"] =  CreateUI("SprintJump", 1, true);
-        RumbleEvents["PlaySoftLand"] =      CreateUI("Landing", 0.5f, true);
-        RumbleEvents["UNKNOWNIDENTIFIER"] = CreateUI("HardLanding", 5, true);
-        RumbleEvents["Camera Shake"] =      CreateUI("CameraShake", 5, true);
-        RumbleEvents["PlaySubmitSound"] =   CreateUI("MenuSubmitSound", 0.5f, false);
-        RumbleEvents["PressCancel"] =       RumbleEvents["PlaySubmitSound"];
-        RumbleEvents["PressSubmit"] =       RumbleEvents["PlaySubmitSound"];
-        RumbleEvents["PlayToolThrow"] =     CreateUI("UseTool", 0.5f, true);
-        RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 0.5f, true);
+        RumbleEvents[UncategorisedRumbleEventName] = new(UncategorisedRumbleEventName, 1, _enabled, _scaleWithWeighting, false);
+        RumbleEvents["PlayFootStep"] =              CreateUI("Walking", 0.1f, false);
+        RumbleEvents["PlayWallJump"] =              CreateUI("WallJump", 0.3f, true);
+        RumbleEvents["HeroDash"] =                  CreateUI("Dashing", 0.4f, true);
+        RumbleEvents["PlayAirDash"] =               RumbleEvents["HeroDash"];
+        RumbleEvents["StartShuttlecock"] =          CreateUI("SprintJump", 0.8f, true);
+        RumbleEvents["PlaySoftLand"] =              CreateUI("Landing", 0.5f, true);
+        RumbleEvents["DoHardLandingEffectNoHit"] =  CreateUI("HardLanding", 3, true);
+        RumbleEvents["Camera Shake"] =              CreateUI("CameraShake", 0.5f, true);
+        RumbleEvents["PlaySubmitSound"] =           CreateUI("MenuSubmitSound", 0.5f, false);
+        RumbleEvents["PressCancel"] =               RumbleEvents["PlaySubmitSound"];
+        RumbleEvents["PressSubmit"] =               RumbleEvents["PlaySubmitSound"];
+        RumbleEvents["PlayToolThrow"] =             CreateUI("UseTool", 1f, true);
+        RumbleEvents["PlayConsumeFinalShake"] =     CreateUI("UseConsumable", 1f, true);
+        RumbleEvents["StartSlash"] =                CreateUI("DownSlash", 0.3f, true, gapBelow: false);
+        RumbleEvents["OnSlashStarting"] =           CreateUI("AnyOtherSlash", 0.2f, true);
+        RumbleEvents["StartWallSlide"] =            CreateUI("WallSlide", 0.3f, true);
 
         WeightedEvent CreateUI(string identifier, float defaultWeight, bool defaultOn, bool gapBelow = true, string? categoryLabel = null)
         {
@@ -63,16 +68,63 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
             item.Value.Load(preset);
         }
     }
-    private void OnRumble(string rumbleName)
+    private readonly static HashSet<string> meaninglessRumbleNames =
+    [ //these tell me nothing, so go further back into the stack trace
+        "Play",
+        "PlaySound",
+        "PlayVibration",
+        "PlayVibrationClipOneShot",
+        "SpawnAndPlayOneShot",
+        "SpawnAndPlayOneShotInternal",
+        "StartVibration",
+        "OnEnter",
+        "OnEnable",
+        "DoShake",
+        "ActivateActions",
+        "DoTransition", //hornet trans confirmed
+        "EnterState",
+        "SwitchState",
+        "UpdateState",
+        "heroAction",
+        "UpdateStateChanges",
+        "SetActive_Injected",
+        "ProcessEvent",
+        "Event",
+        "SendEvent",
+        "SetActive",
+    ];
+    private void OnRumble(string? rumbleName)
     {
+        if (!Enabled) return;
+        if (string.IsNullOrWhiteSpace(rumbleName) || meaninglessRumbleNames.Contains(rumbleName)) rumbleName = FigureOutRumbleName();
+
         if (RumbleEvents.TryGetValue(rumbleName, out WeightedEvent rumbleEvent))
         {
             ActivateRumble(rumbleEvent);
         }
         else
         {
-            ActivateRumble(UncategorisedRumbleEvent, $"Uncategorised ({rumbleName})");
+            ActivateRumble(RumbleEvents[UncategorisedRumbleEventName], $"Uncategorised ({rumbleName})");
             Log($"Uncategorised rumble event: {rumbleName}");
+        }
+
+        string FigureOutRumbleName()
+        {
+            string name = "unknown";
+            for (int i = 3; i <= 8; i++)
+            {
+                try
+                {
+                    name = new StackFrame(i).GetMethod().Name;
+                }
+                catch
+                {
+                    break;
+                }
+                if (name.Contains(':')) name = name[name.IndexOf(':')..].Trim(':', '>', '<');
+                if (!meaninglessRumbleNames.Contains(name)) return name;
+            }
+            return UncategorisedRumbleEventName;
         }
     }
     private void ActivateRumble(WeightedEvent rumbleEvent, string? subID = null)

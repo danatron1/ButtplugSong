@@ -79,6 +79,7 @@ internal class NetworkSettings : GUISection, IPresetLoadable
         Vibe.PlugReconnectEstablished += RefreshDeviceList;
         PlugManager.DeviceConnected += AddDevice;
         PlugManager.DeviceDisconnected += RemoveDevice;
+        PlugManager.DisconnectedFromServer += RemoveAllDevices;
         Vibe.NeedsUpdate += Update;
     }
     public void SetToPreset(Preset preset)
@@ -91,6 +92,12 @@ internal class NetworkSettings : GUISection, IPresetLoadable
     {
         foreach (var device in Devices.Values) device.Update(realTime);
     }
+    public void AddDevice(ButtplugClientDevice device)
+    {
+        if (device is null || Devices.ContainsKey(device)) return;
+        Devices[device] = new DeviceUI(device, this);
+        _debuggingHelpLabel.AddToClassList("hide");
+    }
     public void RemoveDevice(ButtplugClientDevice device)
     {
         if (device is null || !Devices.TryGetValue(device, out DeviceUI? deviceUI)) return;
@@ -98,15 +105,15 @@ internal class NetworkSettings : GUISection, IPresetLoadable
         Devices.Remove(device);
         if (Devices.Count == 0) _debuggingHelpLabel.RemoveFromClassList("hide");
     }
-    public void AddDevice(ButtplugClientDevice device)
+    public void RemoveAllDevices()
     {
-        if (device is null || Devices.ContainsKey(device)) return;
-        Devices[device] = new DeviceUI(device, this);
-        _debuggingHelpLabel.AddToClassList("hide");
+        foreach (var device in Devices.Values) device.Unload();
+        Devices.Clear();
+        _debuggingHelpLabel.RemoveFromClassList("hide");
     }
     public void RefreshDeviceList()
     {
-        foreach (var device in Devices.Keys) RemoveDevice(device);
+        RemoveAllDevices();
         if (Plug is null) return;
         foreach (var device in Plug.GetDevices()) AddDevice(device);
     }

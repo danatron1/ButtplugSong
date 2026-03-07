@@ -42,8 +42,8 @@ internal class UISettings : GUISection, IPresetLoadable
         _autoCollapseSettings = Get<Toggle>("AutoCollapseSettings");
         _autoCollapseSettings.SetupSaving();
 
-        _uiScale.index = 2;
-        _uiHeight.index = 1;
+        _uiScale.SetIndexWithoutNotify(2);
+        _uiHeight.SetIndexWithoutNotify(1);
     }
     public void SetToPreset(Preset preset)
     {

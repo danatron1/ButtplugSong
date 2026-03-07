@@ -9,6 +9,7 @@ thunderstore/dist
 
 # Dana added:
 [Dd]ocs/
+[Uu]nityBackup/
 
 # dotenv files
 .env

@@ -1,6 +1,7 @@
 ﻿using ButtplugManaged;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
@@ -68,7 +69,6 @@ internal class DeviceUI : GUISection
             };
         }
     }
-
     private void TestButtonClicked()
     {
         DeviceInfo.Test(0.25f, 0.5f);
@@ -97,6 +97,7 @@ internal class DeviceUI : GUISection
     private async Task UpdateBatteryDisplay()
     {
         if (workingBatterySensor <= 0) return;
+        workingBatterySensor -= 1;
         if (!DeviceInfo.Device.AllowedMessages.ContainsKey("BatteryLevelCmd"))
         {
             workingBatterySensor = 0;
@@ -106,16 +107,15 @@ internal class DeviceUI : GUISection
         else if (await DeviceInfo.TryRefreshBattery() && DeviceInfo.Battery.HasValue)
         {
             workingBatterySensor = 10;
-            _batteryLabel.text = $"Battery {DeviceInfo.Battery}%";
+            _batteryLabel.text = $"Battery: {DeviceInfo.Battery}%";
             SetBatteryColour(DeviceInfo.Battery.Value);
         }
         else
         {
-            workingBatterySensor -= 1;
             _batteryLabel.text = "Battery unknown";
             SetBatteryColour(0);
+            timeSinceLastBatteryUpdate = 50; //retry again in 10 seconds
         }
-
         void SetBatteryColour(double battery)
         {
             foreach (string style in batteryColourStyles) _batteryLabel.RemoveFromClassList(style);
