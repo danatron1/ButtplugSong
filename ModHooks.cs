@@ -85,9 +85,9 @@ internal static class ModHooks
 
     //Item pickup
     public static event Action<SavedItem, CollectableItemPickup>? OnItemPickupHook;
-    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.Start))]
+    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.DoPickupAction))]
     [HarmonyPrefix]
-    private static void OnItemPickup(CollectableItemPickup __instance)
+    private static void OnItemPickup(CollectableItemPickup __instance, bool breakIfAtMax)
     {
         var item = __instance.item;
         if (item == null) return;

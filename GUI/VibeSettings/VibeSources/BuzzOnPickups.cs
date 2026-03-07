@@ -10,8 +10,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     private readonly Toggle _scaleWithWeighting;
     public bool ScaleWithWeighting { get => _scaleWithWeighting.value; set => _scaleWithWeighting.value = value; }
 
-
-
+    private readonly Dictionary<string, WeightedEvent> KnownItems = new();
     protected override string _punctuateReminderDescription => "collecting an item";
 
     public BuzzOnPickups() : base("Pickups", false, 50, 5, true)
@@ -25,93 +24,85 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
 
         VisualElement parent = Get<Label>("PickupsItemListLabel").parent;
 
-        int id = 0;
+        KnownItems["Rosary_Set_Frayed"] = CreateUI("FrayedRosaryString", 0.3f, true, categoryLabel: "Collectable Items");
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("RosaryString", 0.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("RosaryNecklace", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("HeavyRosaryNecklace", 2.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("PaleRosaryNecklace", 3.4f, true, true);
 
-        KnownItems = new Dictionary<string, WeightedEvent>()
-        {
-            //notes for weighting: On default settings, a weight of 1 is 50% for 5 seconds.
-            //Meaning that anything with a weight of 2 or above is 100% for 10+ seconds.
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ShardBundle", 0.5f, true);
+        KnownItems["Great Shard"]       = CreateUI("BeastShard", 1.4f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("PristineCore", 2.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("HornetStatuette", 3f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Growstone", 3f, true, true);
 
-            //ABILITIES
-            //silk skills (any) - 1
-            //swift step - 0.6f
-            //cling grip - 1.5f,
-            //needolin - 1.5f
-            //clawline - 1
-            //silksoar - 1.8f
-            //sylphsong - 1
-            //beastling call - 1
-            //elegy of the deep - 1.6f
-            //bind - weight 2 - ONLY INCLUDE IF ADDED TO ARCHIPELAGO RANDOMIZER
-            //needle strike - 0.6f
-            //architect's melody - 1.6f
-            //conductor's melody - 1.6f
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SilkEater", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Craftmetal", 0.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Relics", 0.6f, true); // e.g. bone/weaver/choral/harp
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ArcaneEgg", 2.4f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("PsalmCylinders", 2.4f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SacredCylinder", 2, true, true); // u/Smart_Calendar1874
 
-            //UPGRADES
-            //spool fragment - 0.6
-            //memory locket - 0.8
-            //mask shard - 1
-            //silk heart - 1.2
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ShamanSouls", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("OldHearts", 1.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("PaleOil", 2, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("TwistedBud", 6, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("OtherQuestItems", 0.2f, true, true);
 
-            //drifters cloak - 1
-            //faydown cloak - 2
-            //tool pouch - 0.5
-            //crafting kit - 0.5
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Mementos", 1, true, true);
 
-            //Bellway - 0.4f
-            //map (any) - 0.2f
-            //map markers - 0.2f
-            //quill - 0.4
-            //plasmium gland - 1
-            //everbloom - 2.5
+        
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("RedTools", 1f, true, categoryLabel: "Equipment / Upgrades");
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("BlueTools", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("YellowTools", 0.6f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ToolPouch", 0.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("CraftingKit", 0.5f, true, true);
 
-            //PICKUPS
-            { "Rosary_Set_Frayed", CreateUI("FrayedRosaryString", 0.3f, true, categoryLabel: "Collectable Items") },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("RosaryString", 0.5f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("RosaryNecklace", 1f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("HeavyRosaryNecklace", 2.2f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("PaleRosaryNecklace", 3.4f, true, true) },
+        KnownItems["silkRegenMax"] = CreateUI("SilkHeart", 1.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("MaskShard", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("MemoryLocket", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SpoolFragment", 0.6f, true, true);
 
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("ShardBundle", 0.5f, true) },
-            { "Great Shard", CreateUI("BeastShard", 1.4f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("PristineCore", 2.2f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("HornetStatuette", 3f, true) },
-            { id+++ "UNKNOWN IDENTIFIER ", CreateUI("Growstone", 3f, false, true) },
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("DriftersCloak", 1, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("FaydownCloak", 2, true, true);
 
-            //silk eater - 1
-            //craftmetal - 1
-            //pale oil - 2
-            //relics (bone/weaver/choral/harp) - 0.6f
-            //arcane egg - 2.4f (same effect as in hollow knight :D)
-            //psalm cylinder - 1
-            //sacred cylinder - 2
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Maps", 0.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("MapMarkers", 0.1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Quill", 0.3f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("BellwayUnlocks", 0.4f, true, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("VentricaUnlocks", 0.5f, true, true);
 
-            //quest deliverables - 0.2f
-            //souls - 0.8f
-            //hearts - 1.6f
-            //twisted bud - 6 
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Keys", 0.6f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("PlasmiumGland", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Everbloom", 2.5f, true, true);
 
-            //keys (any. includes craw summons) - 0.6
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("BellhomeUpgrades", 0.5f, true, true);
+        
+        
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SilkSkills", 1, true, categoryLabel: "Abilities");
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SwiftStep", 0.6f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ClingGrip", 1.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Clawline", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("SilkSoar", 2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("NeedleStrike", 0.6f, true, true);
 
-            //bellhome upgrades - 0.4f
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Needolin", 1.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ElegyOfTheDeep", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("BeastlingCall", 0.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Sylphsong", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ArchitectMelody", 1.2f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ConductorMelody", 1.2f, true, true);
+        //KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("Bind", 2, true, true); //To be added once randomizer releases (assuming they allow for bind rando)
 
-            //mementos - 1
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ReaperCrest", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("WandererCrest", 0.8f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("BeastCrest", 0.5f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("WitchCrest", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ArchitectCrest", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("ShamanCrest", 1f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("HuntersUpgrade", 0.7f, true);
+        KnownItems["UNKNOWNIDENTIFIER"] = CreateUI("VesticrestUpgrade", 1f, true, true);
 
-            //TOOLS - do I want to list each one individually?
-            //red tools - 1
-            //blue tools - 0.8f
-            //yellow tools - 0.6f
-
-            //CRESTS
-            //hunter upgrade - 0.7f
-            //vesticrest upgrade - 1
-            //reaper - 0.8f
-            //wanderer - 0.8f
-            //beast - 0.6f
-            //witch - 1
-            //architect - 1
-            //shaman - 1
-        };
         WeightedEvent CreateUI(string identifier, float defaultWeight, bool defaultOn, bool gapBelow = false, string? categoryLabel = null)
         {
             return WeightedEvent.CreateWithUI(identifier, defaultWeight, defaultOn, parent, this, _enabled, _scaleWithWeighting, !gapBelow, categoryLabel);
@@ -129,49 +120,40 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     readonly HashSet<string> DEBUG_SEEN_NAMES = new();
     private void OnSetInt(string intName, int value)
     {
-        string message = $"Set int {intName} to {value}";
-        if (KnownInts.TryGetValue(intName, out string realName))
-        {
-            message += $" - RECOGNISED AS: {realName}";
-        }
-        else message += " - UNRECOGNISED";
-        if (DEBUG_SEEN_NAMES.Contains(intName)) return;
-        DEBUG_SEEN_NAMES.Add(intName);
-        Log(message);
+        TryActivate(intName);
     }
     private void OnSetBool(string boolName, bool value)
     {
-        string message = $"Set bool {boolName} to {value}";
-        if (KnownBools.TryGetValue(boolName, out string realName))
-        {
-            message += $" - RECOGNISED AS: {realName}";
-        }
-        else message += " - UNRECOGNISED";
+        if (value) TryActivate(boolName);
+
+        //purely for logging (helps me locate bools for unknown items)
         if (DEBUG_SEEN_NAMES.Contains(boolName)) return;
+        string message = $"Set bool {boolName} to {value}";
+        if (KnownBools.TryGetValue(boolName, out string realName)) message += $" - RECOGNISED AS: {realName}";
+        else message += " - UNRECOGNISED";
         DEBUG_SEEN_NAMES.Add(boolName);
         Log(message);
     }
     private void ItemPickup(SavedItem item, CollectableItemPickup instance)
     {
         Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
-        Log($"{item.CanGetMore()} - {item.CanGetMultipleAtOnce} - {item}");
-        Log($"Instance: {instance.name}: {instance.persistent} - {instance.didStart} - {instance.activatedSave} - {instance.IsInvoking()} - {instance.isActiveAndEnabled} - {instance.tag} - {instance.hasStarted}");
-
+        TryActivate(item.name);
+    }
+    private void TryActivate(string name)
+    {
         if (!Enabled) return;
-        if (KnownItems.TryGetValue(item.name, out WeightedEvent itemEvent))
-        {
-            if (!itemEvent.Enabled) return;
-            if (!ScaleWithWeighting) Activate(itemEvent.EnabledText);
-            else Activate(itemEvent.Weight, itemEvent.EnabledText);
-        }
+        if (KnownItems.TryGetValue(name, out WeightedEvent weightedEvent)) Activate(weightedEvent);
+    }
+    private void Activate(WeightedEvent weightedEvent)
+    {
+        if (!weightedEvent.Enabled) return;
+        if (!ScaleWithWeighting) Activate(weightedEvent.EnabledText);
+        else Activate(weightedEvent.Weight, weightedEvent.EnabledText);
     }
 
     #region Recognised Pickups
-    private readonly Dictionary<string, WeightedEvent> KnownItems;
-    public static readonly Dictionary<string, string> KnownInts = new()
-    {
-        { "silkRegenMax", "Silk Heart" },
-    };
+
+    //Not currently doing anything with these, they're purely for logging. I imagine it'll be useful later.
     public static readonly Dictionary<string, string> KnownBools = new()
     {
         { "hasDash", "Swift Step" },
@@ -227,7 +209,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         { "hasPinFleaCitadel", "Flea Pins: Citadel" },
         { "hasPinFleaPeaklands", "Flea Pins: Peaklands" },
         { "hasPinFleaMucklands", "Flea Pins: Mucklands" },
-
+        
         { "hasMarker_a", "Shell Marker" },
         { "hasMarker_b", "Ring Marker" },
         { "hasMarker_c", "Hunt Marker" },
