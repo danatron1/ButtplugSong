@@ -194,48 +194,4 @@ internal static class ModHooks
     {
         OnMaxSilkUpHook?.Invoke();
     }
-
-    //ItemChanger compatibility
-    public static event Action? OnMaskShardHook;
-    public static event Action? OnSpoolFragmentHook;
-    internal static void InvokeMaskShard() => OnMaskShardHook?.Invoke();
-    internal static void InvokeSpoolFragment() => OnSpoolFragmentHook?.Invoke();
-
-    internal static void TryPatchItemChanger(Harmony harmony, Action<string> log)
-    {
-        try
-        {
-            var maskShardType = Type.GetType("ItemChanger.Silksong.Items.MaskShardItem, ItemChanger.Silksong");
-            if (maskShardType != null)
-            {
-                var giveMaskShard = maskShardType.GetMethod("GiveMaskShard", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-                if (giveMaskShard != null)
-                {
-                    harmony.Patch(giveMaskShard, postfix: new HarmonyMethod(typeof(ICPatches), nameof(ICPatches.OnICMaskShard)));
-                    log("Patched ItemChanger MaskShardItem.GiveMaskShard");
-                }
-            }
-
-            var spoolFragType = Type.GetType("ItemChanger.Silksong.Items.SpoolFragmentItem, ItemChanger.Silksong");
-            if (spoolFragType != null)
-            {
-                var giveImmediate = spoolFragType.GetMethod("GiveImmediate", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                if (giveImmediate != null)
-                {
-                    harmony.Patch(giveImmediate, postfix: new HarmonyMethod(typeof(ICPatches), nameof(ICPatches.OnICSpoolFragment)));
-                    log("Patched ItemChanger SpoolFragmentItem.GiveImmediate");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            log($"ItemChanger patching skipped: {ex.Message}");
-        }
-    }
-}
-
-internal static class ICPatches
-{
-    internal static void OnICMaskShard() => ModHooks.InvokeMaskShard();
-    internal static void OnICSpoolFragment() => ModHooks.InvokeSpoolFragment();
-}
+}

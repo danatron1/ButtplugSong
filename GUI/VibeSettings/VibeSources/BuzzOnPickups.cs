@@ -22,8 +22,6 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         ModHooks.OnSetIntHook += OnSetInt;
         ModHooks.OnMaxHealthUpHook += OnMaxHealthUp;
         ModHooks.OnMaxSilkUpHook += OnMaxSilkUp;
-        ModHooks.OnMaskShardHook += OnMaskShard;
-        ModHooks.OnSpoolFragmentHook += OnSpoolFragment;
 
         _scaleWithWeighting = Get<Toggle>("PickupsScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
@@ -117,10 +115,10 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
 
         KnownItems["silkRegenMax"] = CreateUI("SilkHeart", 1.2f, true);
         _fullMaskEvent = CreateUI("FullMask", 1f, true);
-        KnownItems["heartPieces"] = CreateUI("MaskShard", 0.6f, true);
+        KnownItems["heartPieces"] = CreateUI("MaskShard", 1f, true);
         KnownItems["Crest Socket Unlocker"] = CreateUI("MemoryLocket", 0.8f, true);
         _fullSpoolEvent = CreateUI("FullSpool", 0.6f, true);
-        KnownItems["silkSpoolParts"] = CreateUI("SpoolFragment", 0.4f, true, true);
+        KnownItems["silkSpoolParts"] = CreateUI("SpoolFragment", 0.6f, true, true);
 
         #endregion
 
@@ -135,12 +133,12 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "HasWeavehomeMap", "HasLibraryMap", "HasWardMap", "HasCrawlMap");
 
         MapCategory(CreateUI("MapMarkers", 0.1f, true),
-            "hasMarker_a", "hasMarker_b", "hasMarker_c", "hasMarker_d", "hasMarker_e");
-
-        MapCategory(CreateUI("Quill", 0.3f, true, true),
+            "hasMarker_a", "hasMarker_b", "hasMarker_c", "hasMarker_d", "hasMarker_e",
             "hasPinBench", "hasPinStag", "hasPinShop", "hasPinTube",
             "hasPinFleaMarrowlands", "hasPinFleaMidlands", "hasPinFleaBlastedlands",
             "hasPinFleaCitadel", "hasPinFleaPeaklands", "hasPinFleaMucklands");
+
+        CreateUI("Quill", 0.3f, true, true);
 
         MapCategory(CreateUI("BellwayUnlocks", 0.4f, true),
             "UnlockedDocksStation", "UnlockedBoneforestEastStation", "UnlockedGreymoorStation",
@@ -280,6 +278,4 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         Activate(_fullSpoolEvent);
     }
 
-    private void OnMaskShard() => TryActivate("heartPieces");
-    private void OnSpoolFragment() => TryActivate("silkSpoolParts");
 }
