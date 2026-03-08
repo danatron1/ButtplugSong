@@ -111,7 +111,8 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "Sprintmaster", "Musician Charm", "Thief Charm", "Weighted Anklet");
 
         KnownItems["Tool Pouch&Kit Inv"] = CreateUI("ToolPouch", 0.5f, true);
-        CreateUI("CraftingKit", 0.5f, true, true);
+        KnownItems["ToolPouchUpgrades"] = KnownItems["Tool Pouch&Kit Inv"];
+        KnownItems["ToolKitUpgrades"] = CreateUI("CraftingKit", 0.5f, true, true);
 
         KnownItems["silkRegenMax"] = CreateUI("SilkHeart", 1.2f, true);
         _fullMaskEvent = CreateUI("FullMask", 1f, true);
