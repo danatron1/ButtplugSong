@@ -2,6 +2,8 @@
 
 Vibrator support for Hollow Knight: Silksong, for a hornier Hornet. 
 
+![List of features](Images/features.png)
+
 ## Requirements
 
 You will need:
@@ -9,13 +11,13 @@ You will need:
 * A vibrating toy ([compatible device list](https://iostindex.com/?filter0ButtplugSupport=4))
 * A copy of [Hollow Knight: Silksong](https://store.steampowered.com/app/1030300/Hollow_Knight_Silksong/)
 * A Silksong mod manager, such as [r2modman](https://thunderstore.io/c/hollow-knight-silksong/p/ebkr/r2modman/) (free) 
-	* Alternatively, manually configure Silksong modding with BepInEx. A mod manager will do this for you!
+	* Alternatively, manually configure Silksong modding with BepInEx. But a mod manager will do this for you!
 * [Intiface Central](https://intiface.com/#intiface-central) installed and enabled (free)
 * A PC with a bluetooth receiver *OR* a smartphone with Intiface Central installed and [relaying](https://intiface.com/docs/intiface-central/ui/app-modes-repeater-panel)
 
 ## Installation instructions
 
-1. Install a mod manager such as [r2modman](https://thunderstore.io/c/hollow-knight-silksong/p/ebkr/r2modman/). (Others are available, however you can't use Cogfly as it blocks mods tagged nsfw)
+1. Install a mod manager such as [r2modman](https://thunderstore.io/c/hollow-knight-silksong/p/ebkr/r2modman/). (Others are available, however not Cogfly as it blocks nsfw mods)
 2. Click "Install with Mod Manager" on this mod's [thunderstore page](https://thunderstore.io/c/hollow-knight-silksong/p/danatron1/Buttplug_Song/)
 3. On Intiface Central, turn on the server, scan for devices, and ensure your toy is listed. If you're using your phone as a bluetooth relay, follow the relaying instructions linked in the Requirements section.
 4. Launch the game through the mod manager. If all is good, the mod will display UI in the upper right, and your toy will be listed under the Network tab.
