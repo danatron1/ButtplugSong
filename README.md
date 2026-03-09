@@ -2,7 +2,7 @@
 
 Vibrator support for Hollow Knight: Silksong, for a hornier Hornet. 
 
-![List of features](Images/features.png)
+![see git.gay/danatron1/ButtplugSong for a fancy list of features](Images/features.png)
 
 ## Requirements
 
