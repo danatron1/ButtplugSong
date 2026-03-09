@@ -125,6 +125,20 @@ internal class StopTheVibes : GUISection, IPresetLoadable
     }
     private void StopTheVibesButtonClicked()
     {
+        if (_buttonCostsResources.value)
+        {
+            if (_buttonCostsRosaries.value)
+            {
+                if (RosaryCost > CurrencyManager.GetCurrencyAmount(CurrencyType.Money)) return;
+                CurrencyManager.TakeCurrency(RosaryCost, CurrencyType.Money);
+            }
+            if (_buttonCostsShards.value)
+            {
+                if (ShardCost > CurrencyManager.GetCurrencyAmount(CurrencyType.Shard)) return;
+                CurrencyManager.TakeCurrency(ShardCost, CurrencyType.Shard);
+            }
+        }
+
         if (_buttonDisablesMinimums.value) Vibe.UI.Limits._minimumsEnabled.value = false;
         Vibe.Logic.VibeSourceActivation("Stop the Vibes!", 1, "-", 0, "+", 0);
     }
