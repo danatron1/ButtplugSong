@@ -14,14 +14,13 @@ internal class PresetSettings : GUISection, IPresetLoadable
         Presets =
         [
             Preset.Default,
-            new PresetComboMeter(),
+            //new PresetComboMeter(),
 
             //do not put the Custom preset in here - it should not be selectable from the dropdown.
         ];
 
         _presetSelector = Get<DropdownField>("PresetSelector");
         _presetSelector.PopulateDropdown(Presets.Select(x => x.Identifier.FriendlyName()).ToArray());
-
         _setToPreset = Get<Button>("SetToPreset");
         _setToPreset.clicked += SetToPreset;
     }

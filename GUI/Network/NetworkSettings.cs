@@ -2,7 +2,11 @@
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
+using Mono.Unix.Native;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.Network;
@@ -90,7 +94,7 @@ internal class NetworkSettings : GUISection, IPresetLoadable
     }
     private void Update(float realTime, float timerTime)
     {
-        foreach (var device in Devices.Values) device.Update(realTime);
+        foreach (var device in Devices.Values.ToArray()) device.Update(realTime);
     }
     public void AddDevice(ButtplugClientDevice device)
     {

@@ -103,7 +103,7 @@ internal class GUIManager : MonoBehaviour
                     MaximumValue = 1,
                     DefaultValue = 0,
                     LineBufferTop = 0.2f,
-                    LineBufferBottom = 2f,
+                    LineBufferBottom = 0.8f,
                     RecordSteps = 128,
                 };
                 VibeDisplay.SetSize(new Vector2(320, 35));
@@ -330,7 +330,7 @@ internal class GUIManager : MonoBehaviour
         {
             //ONLY hide settings when player can't interact with settings anyway - i.e. when playing & unpaused.
             SettingsPanel.SetClassListIf("hide", x => UISettings.AutoCollapseSettings && GameManager.SilentInstance != null && PlayerData.HasInstance &&
-            (GameManager.instance.GameState is GameState.PLAYING || PlayerData.instance.disableInventory || PlayerData.instance.disablePause));
+            (GameManager.instance.GameState is GameState.PLAYING or GameState.ENTERING_LEVEL or GameState.EXITING_LEVEL or GameState.CUTSCENE || PlayerData.instance.disableInventory || PlayerData.instance.disablePause));
         }
     }
     internal void DisplayDeathDice(int rollAmount)

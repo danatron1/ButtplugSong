@@ -26,7 +26,6 @@ internal class BuzzOnDeath : VibeSourceWithPunctuate
 
     private readonly Toggle _raiseMinimum;
     private readonly FloatField _raiseMinimumAmount;
-    internal readonly Label _raiseMinimumReminder;
     public bool RaiseMinimum { get => _raiseMinimum.value; set => _raiseMinimum.value = value; }
     public float RaiseMinimumAmount { get => _raiseMinimumAmount.value / 100; set => _raiseMinimumAmount.value = value * 100; }
     private readonly Toggle _deathDice;
@@ -56,7 +55,6 @@ internal class BuzzOnDeath : VibeSourceWithPunctuate
         _raiseMinimum.SetupSaving(false).RegisterValueChangedCallback(RaiseMinimumChanged);
         _raiseMinimumAmount = Get<FloatField>("RaiseMinimumAmount");
         _raiseMinimumAmount.SetupSaving(5).DependsOn(_raiseMinimum).SetupValueClamping(0, 100).SetupGreyout(x => x == 0);
-        _raiseMinimumReminder = Get<Label>("RaiseMinimum-RelatedReminder");
         _deathDice = Get<Toggle>("DeathDice");
         _deathDice.SetupSaving(false);
         _mostRecentRoll = Get<Label>("MostRecentRoll");

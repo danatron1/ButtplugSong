@@ -27,7 +27,6 @@ internal class MinimumDefault : MinimumBase
     public void UpdateReminderText()
     {
         _reminderText.SetClassListIf("hide", x => _buzzOnDeath is null || !_buzzOnDeath.RaiseMinimum || (_minimumsEnabled.value && _enabled.value));
-        _buzzOnDeath?._raiseMinimumReminder.SetClassListIf("hide", x => _minimumsEnabled.value && _enabled.value);
     }
     internal void RaiseMinimumDeath(float raiseAmount)
     {
