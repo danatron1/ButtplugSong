@@ -11,7 +11,7 @@ You will need:
 * A vibrating toy ([compatible device list](https://iostindex.com/?filter0ButtplugSupport=4))
 * A copy of [Hollow Knight: Silksong](https://store.steampowered.com/app/1030300/Hollow_Knight_Silksong/)
 * A Silksong mod manager, such as [r2modman](https://thunderstore.io/c/hollow-knight-silksong/p/ebkr/r2modman/) (free) 
-	* Alternatively, manually configure Silksong modding with BepInEx. A mod manager will do this for you!
+	* Alternatively, manually configure Silksong modding with BepInEx. But a mod manager will do this for you!
 * [Intiface Central](https://intiface.com/#intiface-central) installed and enabled (free)
 * A PC with a bluetooth receiver *OR* a smartphone with Intiface Central installed and [relaying](https://intiface.com/docs/intiface-central/ui/app-modes-repeater-panel)
 
