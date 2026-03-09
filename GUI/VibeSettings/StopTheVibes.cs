@@ -99,9 +99,9 @@ internal class StopTheVibes : GUISection, IPresetLoadable
         ShardCost = CalculateCost(CurrencyType.Shard);
 
         if (RosaryCost == 0 && ShardCost == 0) _stopTheVibesCostLabel.text = "Free!";
-        else if (RosaryCost == 0) _stopTheVibesCostLabel.text = $"Costs {ShardCost} shards";
-        else if (ShardCost == 0) _stopTheVibesCostLabel.text = $"Costs {RosaryCost} rosaries";
-        else _stopTheVibesCostLabel.text = $"Costs {RosaryCost} rosaries, {ShardCost} shards";
+        else if (RosaryCost == 0) _stopTheVibesCostLabel.text = $"Costs {ShardCost} shard{(ShardCost == 1 ? "" : "s")}";
+        else if (ShardCost == 0) _stopTheVibesCostLabel.text = $"Costs {RosaryCost} rosar{(RosaryCost == 1 ? "y" : "ies")}";
+        else _stopTheVibesCostLabel.text = $"Costs {RosaryCost} rosar{(RosaryCost == 1 ? "y" : "ies")}, {ShardCost} shard{(ShardCost == 1 ? "" : "s")}";
 
         _stopTheVibes.enabledSelf = CurrencyManager.GetCurrencyAmount(CurrencyType.Money) >= RosaryCost
                                  && CurrencyManager.GetCurrencyAmount(CurrencyType.Shard) >= ShardCost;

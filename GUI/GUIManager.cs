@@ -226,7 +226,7 @@ internal class GUIManager : MonoBehaviour
     {
         Vibe.Logic.PunctuateChanged += UpdatePunctuateGraphic;
         Vibe.Logic.AddActivityLog += LogActivity;
-        Vibe.Logic.TimerHitZero += UpdateLockSettings;
+        Vibe.Logic.PowerChanged += UpdateLockSettings;
     }
 
     public void UpdatePunctuateGraphic(bool punctuating)
