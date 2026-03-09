@@ -32,7 +32,7 @@ internal class BuzzOnDeath : VibeSourceWithPunctuate
     private readonly Label _mostRecentRoll;
     public bool DeathDice { get => _deathDice.value; set => _deathDice.value = value; }
 
-    public BuzzOnDeath() : base("Death", true, 80, 10, true, 60)
+    public BuzzOnDeath() : base("Death", true, 100, 10, true, 60)
     {
         ModHooks.OnBeforeDeathHook += OnDeathBefore;
         ModHooks.OnAfterDeathHook += OnDeathAfter;

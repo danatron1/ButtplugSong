@@ -2,11 +2,8 @@
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
-using Mono.Unix.Native;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.Network;
@@ -88,7 +85,7 @@ internal class NetworkSettings : GUISection, IPresetLoadable
     }
     public void SetToPreset(Preset preset)
     {
-        _serverAddress.Load(preset);
+        _serverAddress.Load(preset, friendlyName: false);
         _port.Load(preset);
         _retryAttempts.Load(preset);
     }

@@ -1,7 +1,5 @@
 ﻿using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.VibeSettings.LimitSettings;

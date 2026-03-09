@@ -8,6 +8,7 @@ internal class PresetSettings : GUISection, IPresetLoadable
 {
     public Preset[] Presets;
     private readonly DropdownField _presetSelector;
+    private readonly Label _presetDescription;
     private readonly Button _setToPreset;
     public PresetSettings() : base("Presets")
     {
@@ -20,7 +21,8 @@ internal class PresetSettings : GUISection, IPresetLoadable
         ];
 
         _presetSelector = Get<DropdownField>("PresetSelector");
-        _presetSelector.PopulateDropdown(Presets.Select(x => x.Identifier.FriendlyName()).ToArray());
+        _presetDescription = Get<Label>("PresetDescription");
+        _presetSelector.PopulateDropdown(Presets.Select(x => x.Identifier.FriendlyName()).ToArray()).RegisterValueChangedCallback(DropdownChanged);
         _setToPreset = Get<Button>("SetToPreset");
         _setToPreset.clicked += SetToPreset;
     }
@@ -40,5 +42,13 @@ internal class PresetSettings : GUISection, IPresetLoadable
             _presetSelector.value = preset.BasePreset?.Identifier.FriendlyName() ?? "Custom";
         }
         else _presetSelector.value = preset.Identifier.FriendlyName();
+    }
+    private void DropdownChanged(ChangeEvent<string> evt)
+    {
+        _presetDescription.text = evt.newValue switch
+        {
+            "Default Settings" => "The default experience. Vibes as a punishment for making mistakes, such as taking damage.",
+            _ => $"Description for preset {evt.newValue} not defined"
+        };
     }
 }

@@ -38,7 +38,6 @@ internal class VibeLogic
     internal bool vibeWhileTimerPaused = true;
 
     #region Timer Management
-    public bool ShouldCountDown;
     internal const float _actualHardTimerMaximum = 5999; //99:59 on the display.
     //Maximum timer, default 10 minutes
     private float _maxTimer = 600;
@@ -211,6 +210,7 @@ internal class VibeLogic
         }
     }
 
+
     #endregion
 
     #region Wave Management
@@ -243,6 +243,7 @@ internal class VibeLogic
         _logger = logger;
 
     }
+    public float ComboMultiplier = 1;
     public void VibeSourceActivation(string identifier, float power, string powerMode, float time, string timeMode, float punctuateTime, float? basePower = null, float? baseTime = null)
     {
         if (!Armed) return;
@@ -251,6 +252,7 @@ internal class VibeLogic
         float powerBefore = TargetPower;
         float timeBefore = Time;
 
+        if (timeMode == "+" && !TimerZero) time *= ComboMultiplier;
         float newPower = ChangeByMode(TargetPower, power, powerMode).Clamp(MinPower, MaxPower);
         float newTime = ChangeByMode(Time, time, timeMode).Clamp(0, MaxTimer);
         if (newTime != 0) TargetPower = newPower;

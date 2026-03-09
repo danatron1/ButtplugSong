@@ -143,7 +143,7 @@ internal class GUIManager : MonoBehaviour
     public NetworkSettings Network;
 
     public UISettings UISettings;
-    public ListView VibeLog;
+    public GroupBox VibeLog;
 
     private void CreateUIHandles()
     {
@@ -192,7 +192,7 @@ internal class GUIManager : MonoBehaviour
 
         //GUI and Log
         UISettings = new UISettings();
-        VibeLog = Root.Q<ListView>(nameof(VibeLog));
+        VibeLog = Root.Q<GroupBox>(nameof(VibeLog));
 
         LogActivity("Vibe Log Initialized!\nDebug logs are found in \"LogOutput.log\" in your BepInEx folder. This log is just for vibe activity.");
 
@@ -234,7 +234,8 @@ internal class GUIManager : MonoBehaviour
         VibeDisplay.SetClassListIf("punctuating", x => Vibe.Logic.Punctuating);
     }
     #endregion
-    private const int MAX_VIBELOG_ENTRIES = 50;
+    private const int MAX_VIBELOG_ENTRIES = 100;
+    private Queue<VisualElement> vibeLogEntries = new();
     private DateTime? _lastLogEntry = null;
     public void LogActivity(object generalMessage) => LogActivity("Debug Message", generalMessage.ToString());
     public void LogActivity(string sourceLine, string vibeLine) => LogActivity(sourceLine, vibeLine, -1);
@@ -258,9 +259,14 @@ internal class GUIManager : MonoBehaviour
         source.text = sourceLine;
         details.text = vibeLine;
         time.text = timeLine;
-        VibeLog.hierarchy.Add(logrow);
+
+        vibeLogEntries.Enqueue(logrow);
+        VibeLog.Add(logrow);
         _lastLogEntry = now;
-        while (VibeLog.childCount > MAX_VIBELOG_ENTRIES) VibeLog.RemoveAt(0);
+        while (vibeLogEntries.Count > MAX_VIBELOG_ENTRIES)
+        {
+            VibeLog.Remove(vibeLogEntries.Dequeue());
+        }
     }
     private float deathRollTimeRemaining;
     public void Update()

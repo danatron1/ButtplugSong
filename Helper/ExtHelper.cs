@@ -1,5 +1,4 @@
 ﻿using ButtplugSong.GUI.VibeSettings.Presets;
-using GoodVibes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,18 +85,29 @@ public static class ExtHelper
     }
     public static void Load<T>(this BaseField<T> element, Preset preset) where T : struct, IComparable<T>
     {
-        if (Preset.TryGetBoundSetting(element, out string settingName)) element.value = preset.Get<T>(settingName) ?? element.value;
-        else throw new ArgumentException($"Saving not setup! Couldn't load setting from preset {preset.Identifier} for element {element.fullTypeName}");
+        if (Preset.TryGetBoundSetting(element, out string settingName))
+        {
+            T newValue = preset.Get<T>(settingName) ?? element.value;
+            ChangeEvent<T> evt = ChangeEvent<T>.GetPooled(element.value, newValue);
+            evt.target = element;
+            element.SetValueWithoutNotify(newValue);
+            element.SendEvent(evt);
+        }
+        else throw new ArgumentException($"Saving not setup! Couldn't load setting from preset {preset.Identifier} for element {element.name} ({element.typeName})");
     }
     //for dropdowns, save the default as a STRING. For cyclingButton, save the default as an ENUM (i.e. no .ToString())
     public static void Load(this BaseField<string> element, Preset preset, bool friendlyName = true)
     {
         if (Preset.TryGetBoundSetting(element, out string settingName))
         {
-            element.value = preset.GetString(settingName) ?? element.value;
-            if (friendlyName) element.value = element.value.FriendlyName();
+            string newValue = preset.GetString(settingName) ?? element.value;
+            if (friendlyName) newValue = newValue.FriendlyName();
+            ChangeEvent<string> evt = ChangeEvent<string>.GetPooled(element.value, newValue);
+            evt.target = element;
+            element.SetValueWithoutNotify(newValue);
+            element.SendEvent(evt);
         }
-        else throw new ArgumentException($"Saving not setup! Couldn't load setting from preset {preset.Identifier} for element {element.fullTypeName}");
+        else throw new ArgumentException($"Saving not setup! Couldn't load setting from preset {preset.Identifier} for element {element.name} ({element.typeName})");
     }
     public static BaseField<T> DependsOn<T>(this BaseField<T> element, Toggle other, Func<Toggle, bool> predicate)
     {
@@ -117,7 +127,7 @@ public static class ExtHelper
         {
             foreach (Toggle other in others)
             {
-                other.RegisterValueChangedCallback((ChangeEvent<bool> evt) => element.SetEnabled(others.All(x => x.value)));
+                other.RegisterValueChangedCallback((ChangeEvent<bool> evt) => element.SetEnabled(evt.newValue && others.All(x => x.value)));
             }
         }
         return element;
@@ -125,18 +135,15 @@ public static class ExtHelper
     public static string FriendlyName(this string s) //adds spaces where needed
     {
         string result = $"{char.ToUpper(s[0])}";
-        bool lastWasLowerCase = false;
+        bool lastWasUpper = true;
         for (int i = 1; i < s.Length; i++)
         {
             if (char.IsUpper(s[i]))
             {
-                if (!lastWasLowerCase || (i + 1 < s.Length && !char.IsUpper(s[i + 1])))
-                {
-                    result += ' ';
-                }
-                lastWasLowerCase = false;
+                if (!char.IsWhiteSpace(s[i - 1]) && !(lastWasUpper && i + 1 < s.Length && !char.IsLower(s[i + 1]))) result += ' ';
+                lastWasUpper = true;
             }
-            else lastWasLowerCase = true;
+            else lastWasUpper = false;
             result += s[i];
         }
         return result;

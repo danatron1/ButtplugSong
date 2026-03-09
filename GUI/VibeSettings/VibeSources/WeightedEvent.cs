@@ -43,15 +43,15 @@ internal class WeightedEvent : GUISection
             parent.Add(categoryLabel);
         }
 
-        string groupName = $"{source.Identifier}{identifier}"; //e.g. "RosaryString" -> "PickupRosaryString
         GroupBox group = new(string.Empty);
-        group.name = groupName;
+        group.name = $"{source.Identifier}{identifier}"; //e.g. "RosaryString" -> "PickupRosaryString
         group.AddToClassList("weighted-event");
 
         Toggle enable = new(string.Empty)
         {
             text = identifier.FriendlyName(),
-            value = defaultOn
+            value = defaultOn,
+            enabledSelf = false
         };
         enable.AddToClassList("h3");
         if (cosyWithBelow) enable.AddToClassList("weighted-event-cosy");
@@ -59,7 +59,8 @@ internal class WeightedEvent : GUISection
         FloatField weight = new(string.Empty)
         {
             maxLength = 3,
-            value = defaultWeight
+            value = defaultWeight,
+            enabledSelf = false
         };
         weight.AddToClassList("hEntry");
         weight.AddToClassList("weighted-event-weight");

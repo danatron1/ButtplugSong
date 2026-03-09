@@ -1,5 +1,6 @@
 ﻿using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,17 +10,8 @@ namespace ButtplugSong.GUI.VibeSettings.LimitSettings;
 internal abstract class MinimumBase : GUISection, IPresetLoadable
 {
     protected static HeroController hero => HeroController.instance; //here because a lot of minimums use it.
-
-    private static Toggle? __minimumsEnabledProp;
-    internal static Toggle _minimumsEnabled
-    {
-        get
-        {
-            __minimumsEnabledProp ??= Vibe.UI.Limits._minimumsEnabled;
-            return __minimumsEnabledProp;
-        }
-        set => __minimumsEnabledProp = value;
-    }
+    internal static LimitsSettings? limitsSettings;
+    internal static Toggle _minimumsEnabled => limitsSettings?._minimumsEnabled ?? throw new NullReferenceException("Set limitsSettings first!");
 
     protected readonly Toggle _enabled;
     protected readonly FloatField _minAmount;

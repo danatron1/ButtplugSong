@@ -2,7 +2,6 @@
 using ButtplugSong.Helper;
 using System;
 using UnityEngine.UIElements;
-using WebSocketSharp;
 
 namespace ButtplugSong.GUI.CustomUI;
 

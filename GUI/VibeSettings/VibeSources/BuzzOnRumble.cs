@@ -37,22 +37,22 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         VisualElement parent = Get<Label>("RumbleEventsListLabel").parent;
 
         RumbleEvents[UncategorisedRumbleEventName] = new(UncategorisedRumbleEventName, 1, _enabled, _scaleWithWeighting, false);
-        RumbleEvents["PlayFootStep"] =              CreateUI("Walking", 0.1f, false);
-        RumbleEvents["PlayWallJump"] =              CreateUI("WallJump", 0.3f, true);
-        RumbleEvents["HeroDash"] =                  CreateUI("Dashing", 0.4f, true);
-        RumbleEvents["PlayAirDash"] =               RumbleEvents["HeroDash"];
-        RumbleEvents["StartShuttlecock"] =          CreateUI("SprintJump", 0.8f, true);
-        RumbleEvents["PlaySoftLand"] =              CreateUI("Landing", 0.5f, true);
-        RumbleEvents["DoHardLandingEffectNoHit"] =  CreateUI("HardLanding", 3, true);
-        RumbleEvents["Camera Shake"] =              CreateUI("CameraShake", 0.5f, true);
-        RumbleEvents["PlaySubmitSound"] =           CreateUI("MenuSubmitSound", 0.5f, false);
-        RumbleEvents["PressCancel"] =               RumbleEvents["PlaySubmitSound"];
-        RumbleEvents["PressSubmit"] =               RumbleEvents["PlaySubmitSound"];
-        RumbleEvents["PlayToolThrow"] =             CreateUI("UseTool", 1f, true);
-        RumbleEvents["PlayConsumeFinalShake"] =     CreateUI("UseConsumable", 1f, true);
-        RumbleEvents["StartSlash"] =                CreateUI("DownSlash", 0.3f, true, gapBelow: false);
-        RumbleEvents["OnSlashStarting"] =           CreateUI("AnyOtherSlash", 0.2f, true);
-        RumbleEvents["StartWallSlide"] =            CreateUI("WallSlide", 0.3f, true);
+        RumbleEvents["PlayFootStep"] = CreateUI("Walking", 0.1f, false);
+        RumbleEvents["PlayWallJump"] = CreateUI("WallJump", 0.3f, true);
+        RumbleEvents["HeroDash"] = CreateUI("Dashing", 0.4f, true);
+        RumbleEvents["PlayAirDash"] = RumbleEvents["HeroDash"];
+        RumbleEvents["StartShuttlecock"] = CreateUI("SprintJump", 0.8f, true);
+        RumbleEvents["PlaySoftLand"] = CreateUI("Landing", 0.5f, true);
+        RumbleEvents["DoHardLandingEffectNoHit"] = CreateUI("HardLanding", 3, true);
+        RumbleEvents["Camera Shake"] = CreateUI("CameraShake", 0.5f, true);
+        RumbleEvents["PlaySubmitSound"] = CreateUI("MenuSubmitSound", 0.5f, false);
+        RumbleEvents["PressCancel"] = RumbleEvents["PlaySubmitSound"];
+        RumbleEvents["PressSubmit"] = RumbleEvents["PlaySubmitSound"];
+        RumbleEvents["PlayToolThrow"] = CreateUI("UseTool", 1f, true);
+        RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 1f, true);
+        RumbleEvents["StartSlash"] = CreateUI("DownSlash", 0.3f, true, gapBelow: false);
+        RumbleEvents["OnSlashStarting"] = CreateUI("AnyOtherSlash", 0.2f, true);
+        RumbleEvents["StartWallSlide"] = CreateUI("WallSlide", 0.3f, true);
 
         WeightedEvent CreateUI(string identifier, float defaultWeight, bool defaultOn, bool gapBelow = true, string? categoryLabel = null)
         {

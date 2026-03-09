@@ -2,7 +2,6 @@
 using ButtplugSong.Helper;
 using GoodVibes;
 using UnityEngine.UIElements;
-using WebSocketSharp;
 
 namespace ButtplugSong.GUI.VibeSettings;
 

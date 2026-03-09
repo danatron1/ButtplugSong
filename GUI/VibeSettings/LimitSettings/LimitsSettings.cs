@@ -3,7 +3,6 @@ using ButtplugSong.Helper;
 using GoodVibes;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ButtplugSong.GUI.VibeSettings.LimitSettings;
@@ -21,17 +20,17 @@ internal class LimitsSettings : GUISection, IPresetLoadable
     public float MasterMaxTimer { get => _masterMaxTimer.value; set => _masterMaxTimer.value = value; }
     public LimitsSettings() : base("Limits")
     {
+        MinimumBase.limitsSettings = this;
+
         _masterMaxPower = Get<FloatField>($"MasterMaxPower");
         _masterMaxPower.SetupSaving(100).SetupValueClamping(0, 100).SetupGreyout(x => x == 100).RegisterValueChangedCallback(MasterMaxPowerChanged);
         _masterMaxTimer = Get<FloatField>($"MasterMaxTimer");
         _masterMaxTimer.SetupSaving(300).SetupValueClamping(0, VibeLogic._actualHardTimerMaximum).RegisterValueChangedCallback(MasterMaxTimerChanged);
         _minimumsEnabled = Get<Toggle>("EnableMinimums");
-        _minimumsEnabled.SetupSaving(true);
+        _minimumsEnabled.SetupSaving(true, "MinimumsEnabled");
         _minimumsStack = Get<Toggle>("MinimumsStack");
         _minimumsStack.SetupSaving(false).DependsOn(_minimumsEnabled).RegisterValueChangedCallback(MinimumsStackChanged);
         _minimumsStackLabel = Get<Label>("MinimumsStackLabel");
-
-        MinimumBase._minimumsEnabled = _minimumsEnabled; //may not be necessary but playing it safe
 
         Minimums =
         [

@@ -20,6 +20,8 @@ internal class TimerSettings : GUISection, IPresetLoadable
 {
     private readonly DropdownField _timerCountdownMode;
     private readonly Label _countdownModeDescription;
+    private readonly Toggle _timeStacking;
+    private readonly FloatField _timeStackingMultiplier;
     private readonly Toggle _vibeWhileTimerPaused;
     private readonly FloatField _afterZeroPunctuate;
     private readonly Label _afterZeroPunctuateLabel;
@@ -35,6 +37,10 @@ internal class TimerSettings : GUISection, IPresetLoadable
         _timerCountdownMode = Get<DropdownField>("TimerCountdownMode");
         _timerCountdownMode.PopulateDropdown<CountdownMode>().RegisterDropdownChangedCallback<CountdownMode>(CountdownModeChanged).SetupSaving(CountdownMode.Default.ToString());
         _countdownModeDescription = Get<Label>("CountdownModeDescription");
+        _timeStacking = Get<Toggle>("TimeStacking");
+        _timeStacking.SetupSaving(true).RegisterValueChangedCallback(TimeStackingChanged);
+        _timeStackingMultiplier = Get<FloatField>("TimeStackingMultiplier");
+        _timeStackingMultiplier.SetupSaving(1.2f).SetupGreyout(x => x == 1).SetupValueClamping(0, 999).DependsOn(_timeStacking).RegisterValueChangedCallback(TimeStackingChanged);
         _vibeWhileTimerPaused = Get<Toggle>("VibeWhileTimerPaused");
         _vibeWhileTimerPaused.SetupSaving(true).RegisterValueChangedCallback(VibeWhilePausedChanged);
         _afterZeroPunctuate = Get<FloatField>("AfterZeroPunctuate");
@@ -54,6 +60,8 @@ internal class TimerSettings : GUISection, IPresetLoadable
     public void SetToPreset(Preset preset)
     {
         _timerCountdownMode.Load(preset);
+        _timeStacking.Load(preset);
+        _timeStackingMultiplier.Load(preset);
         _vibeWhileTimerPaused.Load(preset);
         _afterZeroPunctuate.Load(preset);
         _afterZeroTimer.Load(preset);
@@ -64,7 +72,6 @@ internal class TimerSettings : GUISection, IPresetLoadable
     {
         Vibe.Logic.afterZeroTimer = evt.newValue;
     }
-
     private void AfterZeroPowerModeChanged()
     {
         Vibe.Logic.afterZeroMode = _afterZeroPowerMode.currentMode;
@@ -72,7 +79,7 @@ internal class TimerSettings : GUISection, IPresetLoadable
     }
     private void AfterZeroPowerChanged(ChangeEvent<float> evt)
     {
-        Vibe.Logic.afterZeroPowerChange = evt.newValue;
+        Vibe.Logic.afterZeroPowerChange = evt.newValue / 100; //displayed as a percentage
         UpdateAfterZeroPowerReminderLabels();
     }
     private void UpdateAfterZeroPowerReminderLabels()
@@ -93,7 +100,6 @@ internal class TimerSettings : GUISection, IPresetLoadable
     {
         Vibe.Logic.vibeWhileTimerPaused = evt.newValue;
     }
-
     private void UpdateAfterZeroPunctuate(ChangeEvent<float> evt)
     {
         if (evt.newValue < 0) return;
@@ -104,6 +110,10 @@ internal class TimerSettings : GUISection, IPresetLoadable
     private void CountdownModeChanged(string newValue, bool isEnum, CountdownMode type)
     {
         if (isEnum) _countdownModeDescription.text = CountdownModeExplanation(type);
+    }
+    private void TimeStackingChanged<T>(ChangeEvent<T> evt)
+    {
+        Vibe.Logic.ComboMultiplier = _timeStacking.value ? _timeStackingMultiplier.value : 1;
     }
 
     private static string AfterZeroModeTextSelector(AfterZeroMode mode)

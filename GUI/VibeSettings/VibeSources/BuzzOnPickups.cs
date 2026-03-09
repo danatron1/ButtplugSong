@@ -47,12 +47,12 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "Seal Chit City Merchant", "Seal Chit Silk Siphon",
             "Seal Chit Ward Corpse", "Seal Chit Aspid_01",
             "Weaver Record Conductor", "Weaver Record Sprint_Challenge", "Weaver Record Weave_08",
-            "Weaver Totem Slab_Bottom", "Weaver Totem Bonetown_upper_room", "Weaver Totem Witch"); 
+            "Weaver Totem Slab_Bottom", "Weaver Totem Bonetown_upper_room", "Weaver Totem Witch");
         KnownItems["Ancient Egg Abyss Middle"] = CreateUI("ArcaneEgg", 2.4f, true);
-        MapCategory(CreateUI("PsalmCylinders", 0.6f, true), 
+        MapCategory(CreateUI("PsalmCylinders", 0.6f, true),
             "Psalm Cylinder Hang", "Psalm Cylinder Librarian",
             "Psalm Cylinder Grindle", "Psalm Cylinder Library Roof", "Psalm Cylinder Ward");
-        KnownItems["Librarian Melody Cylinder"] = CreateUI("SacredCylinder", 2, false, true); // off by default because the Vaultkeeper's Melody is on, and once per cylinder is enough, right u/Smart_Calendar1874?
+        KnownItems["Librarian Melody Cylinder"] = CreateUI("SacredCylinder", 2, true, true); //u/Smart_Calendar1874
 
         MapCategory(CreateUI("ShamanSouls", 0.8f, true),
             "Snare Soul Bell Hermit", "Snare Soul Churchkeeper", "Snare Soul Swamp Bug");
@@ -125,7 +125,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "HasWeavehomeMap", "HasLibraryMap", "HasWardMap", "HasCrawlMap");
         MapCategory(CreateUI("MapMarkers", 0.1f, true),
             "hasMarker_a", "hasMarker_b", "hasMarker_c", "hasMarker_d", "hasMarker_e",
-            "hasPinBench", "hasPinStag", "hasPinShop", "hasPinTube", 
+            "hasPinBench", "hasPinStag", "hasPinShop", "hasPinTube",
             "hasPinFleaMarrowlands", "hasPinFleaMidlands", "hasPinFleaBlastedlands",
             "hasPinFleaCitadel", "hasPinFleaPeaklands", "hasPinFleaMucklands");
         KnownItems["QuillState"] = CreateUI("Quill", 0.3f, true, true);
@@ -181,7 +181,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         KnownItems["Warrior"] = CreateUI("BeastCrest", 0.5f, true);
         KnownItems["Witch"] = CreateUI("WitchCrest", 1f, true);
         KnownItems["Toolmaster"] = CreateUI("ArchitectCrest", 1f, true);
-        KnownItems["Spell"] = CreateUI("ShamanCrest", 1f, true);
+        KnownItems["Spell"] = CreateUI("ShamanCrest", 1f, true, true);
         KnownItems["Cloakless"] = CreateUI("CloaklessCrest", 1.2f, true);
         KnownItems["Cursed"] = CreateUI("CursedWitchCrest", 1.8f, true, true);
 
