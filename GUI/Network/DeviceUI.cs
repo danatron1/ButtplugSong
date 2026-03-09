@@ -106,7 +106,7 @@ internal class DeviceUI : GUISection
         else if (await DeviceInfo.TryRefreshBattery() && DeviceInfo.Battery.HasValue)
         {
             workingBatterySensor = 10;
-            _batteryLabel.text = $"Battery: {DeviceInfo.Battery}%";
+            _batteryLabel.text = $"Battery: {DeviceInfo.Battery:0}%";
             SetBatteryColour(DeviceInfo.Battery.Value);
         }
         else

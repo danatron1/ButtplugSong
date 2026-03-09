@@ -54,7 +54,7 @@ public class DeviceInfo
         if (!Device.AllowedMessages.ContainsKey("BatteryLevelCmd")) return false;
         try
         {
-            Battery = await Device.SendBatteryLevelCmd();
+            Battery = await Device.SendBatteryLevelCmd() * 100;
             return true;
         }
         catch (Exception ex)
