@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using System;
 using UnityEngine;
 
@@ -82,15 +82,19 @@ internal static class ModHooks
         OnGetCocoonHook?.Invoke(__instance);
     }
 
-    //Item pickup
-    public static event Action<SavedItem, CollectableItemPickup>? OnItemPickupHook;
-    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.DoPickupAction))]
+    //Item pickup (hooks SavedItem.Get to catch both world pickups AND shop purchases)
+    public static event Action<SavedItem>? OnItemPickupHook;
+    [HarmonyPatch(typeof(SavedItem), nameof(SavedItem.Get), typeof(int), typeof(bool))]
     [HarmonyPrefix]
-    private static void OnItemPickup(CollectableItemPickup __instance, bool breakIfAtMax)
+    private static void OnItemGet(SavedItem __instance, int amount, bool showPopup)
     {
-        var item = __instance.item;
-        if (item == null) return;
-        OnItemPickupHook?.Invoke(item, __instance);
+        OnItemPickupHook?.Invoke(__instance);
+    }
+    [HarmonyPatch(typeof(SavedItem), nameof(SavedItem.Get), typeof(bool))]
+    [HarmonyPrefix]
+    private static void OnItemGetSimple(SavedItem __instance, bool showPopup)
+    {
+        OnItemPickupHook?.Invoke(__instance);
     }
 
     public static event Action<string, bool>? OnSetBoolHook;

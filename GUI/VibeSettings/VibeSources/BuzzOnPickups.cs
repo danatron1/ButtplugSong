@@ -1,4 +1,4 @@
-﻿using ButtplugSong.GUI.VibeSettings.Presets;
+using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
@@ -213,13 +213,15 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     }
     private void OnSetInt(string intName, int value)
     {
+        if (KnownItems.ContainsKey(intName)) Log($"SET INT MATCH: {intName} = {value}");
         TryActivate(intName);
     }
     private void OnSetBool(string boolName, bool value)
     {
+        if (value && KnownItems.ContainsKey(boolName)) Log($"SET BOOL MATCH: {boolName}");
         if (value) TryActivate(boolName);
     }
-    private void ItemPickup(SavedItem item, CollectableItemPickup instance)
+    private void ItemPickup(SavedItem item)
     {
         Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
         TryActivate(item.name);
