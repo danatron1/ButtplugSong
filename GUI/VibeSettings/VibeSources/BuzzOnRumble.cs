@@ -27,7 +27,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
     private readonly Dictionary<string, WeightedEvent> RumbleEvents = new();
     //private readonly WeightedEvent UncategorisedRumbleEvent;
 
-    public BuzzOnRumble() : base("Rumble", false, 10, 1, false, 10)
+    public BuzzOnRumble() : base("Rumble", false, 10, 1.3f, false, 10)
     {
         _scaleWithWeighting = Get<Toggle>("RumbleScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
@@ -37,7 +37,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         VisualElement parent = Get<Label>("RumbleEventsListLabel").parent;
 
         RumbleEvents[UncategorisedRumbleEventName] = new(UncategorisedRumbleEventName, 1, _enabled, _scaleWithWeighting, false);
-        RumbleEvents["PlayFootStep"] = CreateUI("Walking", 0.1f, false);
+        RumbleEvents["PlayFootStep"] = CreateUI("Sprinting", 0.2f, false);
         RumbleEvents["PlayWallJump"] = CreateUI("WallJump", 0.3f, true);
         RumbleEvents["HeroDash"] = CreateUI("Dashing", 0.4f, true);
         RumbleEvents["PlayAirDash"] = RumbleEvents["HeroDash"];
@@ -51,7 +51,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         RumbleEvents["PlayToolThrow"] = CreateUI("UseTool", 1f, true);
         RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 1f, true);
         RumbleEvents["StartSlash"] = CreateUI("DownSlash", 0.3f, true, gapBelow: false);
-        RumbleEvents["OnSlashStarting"] = CreateUI("AnyOtherSlash", 0.2f, true);
+        RumbleEvents["OnSlashStarting"] = CreateUI("AnySlash", 0.2f, true);
         RumbleEvents["StartWallSlide"] = CreateUI("WallSlide", 0.3f, true);
 
         WeightedEvent CreateUI(string identifier, float defaultWeight, bool defaultOn, bool gapBelow = true, string? categoryLabel = null)

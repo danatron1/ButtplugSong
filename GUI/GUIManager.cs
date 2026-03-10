@@ -196,7 +196,7 @@ internal class GUIManager : MonoBehaviour
 
         LogActivity("Vibe Log Initialized!\nDebug logs are found in \"LogOutput.log\" in your BepInEx folder. This log is just for vibe activity.");
 
-        DebugInfo.AddToClassList("hide");
+        //DebugInfo.AddToClassList("hide");
     }
     #endregion
     public void FinishedLoading()
@@ -227,6 +227,7 @@ internal class GUIManager : MonoBehaviour
         Vibe.Logic.PunctuateChanged += UpdatePunctuateGraphic;
         Vibe.Logic.AddActivityLog += LogActivity;
         Vibe.Logic.PowerChanged += UpdateLockSettings;
+        Vibe.Logic.VibeSourceActivated += UpdateLockSettings;
     }
 
     public void UpdatePunctuateGraphic(bool punctuating)

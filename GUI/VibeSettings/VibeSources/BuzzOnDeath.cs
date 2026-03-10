@@ -42,7 +42,7 @@ internal class BuzzOnDeath : VibeSourceWithPunctuate
         _includeNonLethal = Get<Toggle>("IncludeNonLethal");
         _includeNonLethal.SetupSaving(true).DependsOn(_enabled);
         _raceTheTimer = Get<Toggle>("RaceTheTimer");
-        _raceTheTimer.SetupSaving(false).DependsOn(_enabled, x => Time > 0);
+        _raceTheTimer.SetupSaving(false).DependsOn(_enabled);
         _corpseRunFail = Get<Toggle>("CorpseRunFail");
         _corpseRunFail.SetupSaving(false);
         _corpseRunFailMultiplier = Get<FloatField>("CorpseRunFailMultiplier");
@@ -105,7 +105,7 @@ internal class BuzzOnDeath : VibeSourceWithPunctuate
     }
     private void OnDeathAfter(GameManager gm)
     {
-        if (RaceTheTimer && !IsSteelSoulMode(gm.playerData) && HasCocoonOut(gm.playerData))
+        if (_enabled.value && RaceTheTimer && !IsSteelSoulMode(gm.playerData) && HasCocoonOut(gm.playerData) && !Vibe.Logic.TimerZero)
         {
             StartRaceTheTimer();
         }

@@ -129,9 +129,14 @@ internal class TimerSettings : GUISection, IPresetLoadable
     internal float GetTimerCountdown(float unscaledDeltaTime)
     {
         if (!ShouldTimerCountDown(TimerCountdownMode)) return 0;
-        if (TimerCountdownMode == CountdownMode.SuperHot)
+        if (TimerCountdownMode == CountdownMode.SuperHot && HeroController.instance != null)
         {
-            Vibe.UI.DebugInfo.text = HeroController.instance.current_velocity.magnitude.ToString();
+            return unscaledDeltaTime * HeroController.instance.current_velocity.magnitude switch
+            {
+                <= float.Epsilon => 0.01f,
+                > 10 => 0.9f + (HeroController.instance.current_velocity.magnitude / 100),
+                _ => HeroController.instance.current_velocity.magnitude / 10
+            };
         }
         return unscaledDeltaTime;
     }
