@@ -14,7 +14,7 @@ internal class MinimumCursed() : MinimumBase("Cursed", false, 25)
 }
 internal class MinimumFreezing() : MinimumWithScale("Freezing", false, 25, true)
 {
-    public override bool IsRelevant() => hero != null && hero.isInFrostRegion;
+    public override bool IsRelevant() => hero != null && hero.isInFrostRegion && PlayerData.HasInstance && !PlayerData.instance.hasDoubleJump;
     protected override float GetScale() => hero.frostAmount;
 }
 internal class MinimumMaggoted() : MinimumBase("Maggoted", true, 20)
