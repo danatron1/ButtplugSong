@@ -335,9 +335,9 @@ internal class GUIManager : MonoBehaviour
         }
         void UpdateSettingsPanelVisibility()
         {
-            //ONLY hide settings when player can't interact with settings anyway - i.e. when playing & unpaused.
-            SettingsPanel.SetClassListIf("hide", x => UISettings.AutoCollapseSettings && GameManager.SilentInstance != null && PlayerData.HasInstance &&
-            (GameManager.instance.GameState is GameState.PLAYING or GameState.ENTERING_LEVEL or GameState.EXITING_LEVEL or GameState.CUTSCENE || PlayerData.instance.disableInventory || PlayerData.instance.disablePause));
+            //ONLY hide settings when player can't interact with settings anyway - i.e. when there's no mouse cursor.
+            SettingsPanel.SetClassListIf("hide", x => UISettings.AutoCollapseSettings && UIManager._instance != null && !UIManager.instance.inputModule.allowMouseInput);
+            //GameManager.SilentInstance != null && PlayerData.HasInstance && (GameManager.instance.GameState is GameState.PLAYING or GameState.ENTERING_LEVEL or GameState.EXITING_LEVEL or GameState.CUTSCENE || PlayerData.instance.disableInventory || PlayerData.instance.disablePause));
         }
     }
     internal void DisplayDeathDice(int rollAmount)

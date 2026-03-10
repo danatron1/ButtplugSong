@@ -90,12 +90,12 @@ internal static class ModHooks
     {
         OnItemPickupHook?.Invoke(__instance);
     }
-    [HarmonyPatch(typeof(SavedItem), nameof(SavedItem.Get), typeof(bool))]
-    [HarmonyPrefix]
-    private static void OnItemGetSimple(SavedItem __instance, bool showPopup)
-    {
-        OnItemPickupHook?.Invoke(__instance);
-    }
+    //[HarmonyPatch(typeof(SavedItem), nameof(SavedItem.Get), typeof(bool))]
+    //[HarmonyPrefix]
+    //private static void OnItemGetSimple(SavedItem __instance, bool showPopup)
+    //{
+    //    OnItemPickupHook?.Invoke(__instance);
+    //}
 
     public static event Action<string, bool>? OnSetBoolHook;
     [HarmonyPatch(typeof(PlayerData), nameof(PlayerData.SetBool))]
