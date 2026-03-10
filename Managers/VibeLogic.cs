@@ -135,7 +135,7 @@ internal class VibeLogic
         TickActivityLogs(realTimeAmount);
         if (Punctuating)
         {
-            punctuatingTimer -= timerAmount;
+            punctuatingTimer -= realTimeAmount;
             if (punctuatingTimer <= 0)
             {
                 Time += punctuatingTimer; //take excess time from the main timer.

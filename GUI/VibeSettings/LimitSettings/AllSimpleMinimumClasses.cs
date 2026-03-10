@@ -8,7 +8,7 @@ internal class MinimumBelowFullHealth() : MinimumWithScale("BelowFullHealth", fa
     public override bool IsRelevant() => playerData != null && GetScale() > 0;
     protected override float GetScale() => playerData.maxHealth - playerData.health; //returns missing health amount
 }
-internal class MinimumCursed() : MinimumBase("Cursed", false, 25)
+internal class MinimumCursed() : MinimumBase("Cursed", false, 30)
 {
     public override bool IsRelevant() => Gameplay.CursedCrest.IsEquipped;
 }

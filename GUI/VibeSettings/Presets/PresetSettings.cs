@@ -25,6 +25,9 @@ internal class PresetSettings : GUISection, IPresetLoadable
         _presetSelector.PopulateDropdown(Presets.Select(x => x.Identifier.FriendlyName()).ToArray()).RegisterValueChangedCallback(DropdownChanged);
         _setToPreset = Get<Button>("SetToPreset");
         _setToPreset.clicked += SetToPreset;
+
+        _presetDescription.RemoveFromClassList("h1"); //this would display an error if the mod failed to load :D
+        _presetDescription.RemoveFromClassList("red-text");
     }
     private void SetToPreset()
     {
