@@ -133,7 +133,7 @@ internal class TimerSettings : GUISection, IPresetLoadable
         {
             return unscaledDeltaTime * HeroController.instance.current_velocity.magnitude switch
             {
-                <= float.Epsilon => 0.01f,
+                <= float.Epsilon => 0.03f,
                 > 10 => 0.9f + (HeroController.instance.current_velocity.magnitude / 100),
                 _ => HeroController.instance.current_velocity.magnitude / 10
             };
@@ -147,8 +147,7 @@ internal class TimerSettings : GUISection, IPresetLoadable
             CountdownMode.Always => true,
             CountdownMode.Default => Time.timeScale > float.Epsilon,
             CountdownMode.InGame => HeroController.instance != null && HeroController.instance.isGameplayScene,
-            CountdownMode.Unpaused => HeroController.instance != null && HeroController.instance.isGameplayScene && !HeroController.instance.IsPaused(),
-            CountdownMode.SuperHot => ShouldTimerCountDown(CountdownMode.Unpaused) && HeroController.instance.current_velocity.magnitude > float.Epsilon,
+            CountdownMode.Unpaused or CountdownMode.SuperHot => HeroController.instance != null && HeroController.instance.isGameplayScene && !HeroController.instance.IsPaused(),
             CountdownMode.Never => false,
             _ => true,
         };
