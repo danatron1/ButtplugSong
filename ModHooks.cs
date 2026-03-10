@@ -1,5 +1,8 @@
 ﻿using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace ButtplugSong;
@@ -82,15 +85,54 @@ internal static class ModHooks
         OnGetCocoonHook?.Invoke(__instance);
     }
 
-    //Item pickup
-    public static event Action<SavedItem, CollectableItemPickup>? OnItemPickupHook;
-    [HarmonyPatch(typeof(CollectableItemPickup), nameof(CollectableItemPickup.DoPickupAction))]
-    [HarmonyPrefix]
-    private static void OnItemPickup(CollectableItemPickup __instance, bool breakIfAtMax)
+    public static event Action<SavedItem>? OnItemPickupHook;
+
+    [HarmonyPatch]
+    private static class SavedItemGetPatch
     {
-        var item = __instance.item;
-        if (item == null) return;
-        OnItemPickupHook?.Invoke(item, __instance);
+        static IEnumerable<MethodBase> TargetMethods()
+        {
+            var methods = new List<MethodBase>();
+
+            var baseGet = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(int), typeof(bool) });
+            if (baseGet != null && !baseGet.IsAbstract)
+                methods.Add(baseGet);
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try { types = assembly.GetTypes(); }
+                catch (ReflectionTypeLoadException ex) { types = ex.Types.Where(t => t != null).ToArray(); }
+                catch { continue; }
+
+                foreach (var type in types)
+                {
+                    if (!typeof(SavedItem).IsAssignableFrom(type) || type == typeof(SavedItem))
+                        continue;
+
+                    foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                    {
+                        if (method.Name == nameof(SavedItem.Get) && !method.IsAbstract)
+                            methods.Add(method);
+                    }
+                }
+            }
+            return methods;
+        }
+
+        [HarmonyPrefix]
+        static void Prefix(SavedItem __instance)
+        {
+            OnItemPickupHook?.Invoke(__instance);
+        }
+    }
+
+    public static event Action<ToolItem>? OnToolUnlockHook;
+    [HarmonyPatch(typeof(ToolItem), nameof(ToolItem.Unlock))]
+    [HarmonyPostfix]
+    private static void OnToolUnlock(ToolItem __instance)
+    {
+        OnToolUnlockHook?.Invoke(__instance);
     }
 
     public static event Action<string, bool>? OnSetBoolHook;

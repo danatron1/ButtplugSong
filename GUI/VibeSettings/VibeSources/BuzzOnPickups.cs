@@ -20,6 +20,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         ModHooks.OnSetIntHook += OnSetInt;
         ModHooks.OnMaxHealthUpHook += OnMaxHealthUp;
         ModHooks.OnMaxSilkUpHook += OnMaxSilkUp;
+        ModHooks.OnToolUnlockHook += ToolUnlock;
 
         _scaleWithWeighting = Get<Toggle>("PickupsScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
@@ -219,10 +220,15 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     {
         if (value) TryActivate(boolName);
     }
-    private void ItemPickup(SavedItem item, CollectableItemPickup instance)
+    private void ItemPickup(SavedItem item)
     {
         Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
         TryActivate(item.name);
+    }
+    private void ToolUnlock(ToolItem tool)
+    {
+        Log($"GOT TOOL: {tool.GetType().Name} - {tool.name}");
+        TryActivate(tool.name);
     }
     private void TryActivate(string name)
     {
