@@ -25,21 +25,27 @@
     <RepositoryUrl>https://github.com/danatron1/ButtplugSong</RepositoryUrl>
 	<ILRepackEnabled>false</ILRepackEnabled>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.Core" Version="5.4.21" />
-    <PackageReference Include="HarmonyX" Version="2.16.0" />
-    <PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.1.0" PrivateAssets="all" />
-    <PackageReference Include="Harmonize" Version="1.0.6" PrivateAssets="all" />
-    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.44.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.26.0" PrivateAssets="all" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
-    <PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
+		<PackageReference Include="HarmonyX" Version="2.16.0" />
+		<PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.1.0" PrivateAssets="all" />
+		<PackageReference Include="Harmonize" Version="1.0.6" PrivateAssets="all" />
+		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.44.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Unity.Analyzers" Version="1.26.0" PrivateAssets="all" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" >
+
+		<dependentAssembly>
+			<assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+			<bindingRedirect oldVersion="0.0.0.0-13.0.0.0" newVersion="13.0.4.0" />
+		</dependentAssembly>
+		</PackageReference>
+		<PackageReference Include="UnityEngine.Modules" Version="6000.0.50" IncludeAssets="compile" />
+		<PackageReference Include="Silksong.GameLibs" Version="*-*" PrivateAssets="all" />
+	</ItemGroup>
 
   <ItemGroup>
     <Folder Remove="thunderstore/temp;thunderstore/dist" />
