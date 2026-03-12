@@ -23,7 +23,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/danatron1/ButtplugSong</RepositoryUrl>
-	<ILRepackEnabled>false</ILRepackEnabled>
+	<ILRepackEnabled>true</ILRepackEnabled>
   </PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />

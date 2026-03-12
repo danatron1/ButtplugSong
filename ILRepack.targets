@@ -1,0 +1,3 @@
+<Project>
+  <!-- This file intentionally left empty to prevent the auto-injected ILRepack target from ILRepack.Lib.MSBuild.Task NuGet package. The custom MergeAssemblies target in ButtplugSong.csproj handles merging. -->
+</Project>
