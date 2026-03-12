@@ -198,4 +198,12 @@ internal static class ModHooks
     {
         OnMaxSilkUpHook?.Invoke(amount);
     }
+
+    public static event Action<ToolItem>? OnToolUnlockHook;
+    [HarmonyPatch(typeof(ToolItem), nameof(ToolItem.Unlock))]
+    [HarmonyPostfix]
+    private static void OnToolUnlock(ToolItem __instance)
+    {
+        OnToolUnlockHook?.Invoke(__instance);
+    }
 }

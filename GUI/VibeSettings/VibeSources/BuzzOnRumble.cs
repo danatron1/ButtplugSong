@@ -27,7 +27,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
     private readonly Dictionary<string, WeightedEvent> RumbleEvents = new();
     //private readonly WeightedEvent UncategorisedRumbleEvent;
 
-    public BuzzOnRumble() : base("Rumble", false, 10, 1.3f, false, 10)
+    public BuzzOnRumble() : base("Rumble", false, 10, 1f, false, 10)
     {
         _scaleWithWeighting = Get<Toggle>("RumbleScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
