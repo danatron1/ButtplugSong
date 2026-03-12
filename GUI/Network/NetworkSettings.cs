@@ -1,4 +1,4 @@
-﻿using Buttplug.Client;
+﻿using ButtplugManaged;
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;

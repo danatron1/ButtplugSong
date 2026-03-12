@@ -1,4 +1,4 @@
-﻿using Buttplug.Client;
+﻿using ButtplugManaged;
 using ButtplugSong;
 using ButtplugSong.GUI;
 using ButtplugSong.GUI.Network;

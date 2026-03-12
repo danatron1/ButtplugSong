@@ -10,6 +10,16 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
 {
     public const string UncategorisedRumbleEventName = "UncategorisedRumble";
 
+    /*New vibe source checklist:
+     * Add relevant modhooks in constructor, implement as you see fit, e.g:
+     *      ModHooks.TakeHealthHook += PlayerHit
+     * for each UI element reference, populate it by querying the UI, e.g:
+     *      _scaleWithDamage = Get<Toggle>("ScaleWithDamage");
+     * set dependencies to other UI elements like this;
+     *      _vulnerableVibingThreshold.SetupValueClamping(0, 100).DependsOn(_vulnerableVibing);
+     * OVERRIDES:
+     * Override _punctuateReminderDescription. Should follow the form of "The first second after ___ is at max power"
+     */
     private readonly Toggle _scaleWithWeighting;
     public bool ScaleWithWeighting { get => _scaleWithWeighting.value; set => _scaleWithWeighting.value = value; }
     protected override string _punctuateReminderDescription => "a rumble";
@@ -17,7 +27,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
     private readonly Dictionary<string, WeightedEvent> RumbleEvents = new();
     //private readonly WeightedEvent UncategorisedRumbleEvent;
 
-    public BuzzOnRumble() : base("Rumble", false, 10, 1f, false, 10)
+    public BuzzOnRumble() : base("Rumble", false, 10, 1.3f, false, 10)
     {
         _scaleWithWeighting = Get<Toggle>("RumbleScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);

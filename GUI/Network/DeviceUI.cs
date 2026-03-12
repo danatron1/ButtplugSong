@@ -1,4 +1,4 @@
-﻿using Buttplug.Client;
+﻿using ButtplugManaged;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
 using System.Collections.Generic;
@@ -79,7 +79,7 @@ internal class DeviceUI : GUISection
         _testButton.enabledSelf = evt.newValue;
         if (!evt.newValue)
         {
-            DeviceInfo.StopDevice();
+            Task.Run(DeviceInfo.Device.SendStopDeviceCmd);
         }
     }
 
@@ -97,7 +97,7 @@ internal class DeviceUI : GUISection
     {
         if (workingBatterySensor <= 0) return;
         workingBatterySensor -= 1;
-        if (!DeviceInfo.Device.HasInput(Buttplug.Core.Messages.InputType.Battery))
+        if (!DeviceInfo.Device.AllowedMessages.ContainsKey("BatteryLevelCmd"))
         {
             workingBatterySensor = 0;
             _batteryLabel.text = "No Battery Sensor";

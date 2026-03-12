@@ -5,6 +5,7 @@ using ButtplugSong.GUI.VibeSettings.LimitSettings;
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.GUI.VibeSettings.VibeSources;
 using ButtplugSong.Helper;
+using GlobalEnums;
 using GoodVibes;
 using System;
 using System.Collections.Generic;
@@ -202,9 +203,6 @@ internal class GUIManager : MonoBehaviour
     {
         SetToPreset(Preset.Custom);
         Root.RemoveFromClassList("hide");
-
-        //Doing here instead of in AddHooks as InputHandler needs time to load.
-        if (InputHandler.Instance != null) InputHandler.Instance.OnCursorVisibilityChange += UpdateSettingsPanelVisibility;
     }
     public void SetToPreset(Preset preset)
     {
@@ -231,6 +229,7 @@ internal class GUIManager : MonoBehaviour
         Vibe.Logic.PowerChanged += UpdateLockSettings;
         Vibe.Logic.VibeSourceActivated += UpdateLockSettings;
     }
+
     public void UpdatePunctuateGraphic(bool punctuating)
     {
         VibeDisplay.SetClassListIf("punctuating", x => Vibe.Logic.Punctuating);
@@ -282,6 +281,7 @@ internal class GUIManager : MonoBehaviour
         UpdateTimeDisplay();
         UpdateDeathRollDisplay();
         UpdateToggleUI();
+        UpdateSettingsPanelVisibility();
 
         void UpdateToggleUI()
         {
@@ -333,10 +333,12 @@ internal class GUIManager : MonoBehaviour
             }
             else if (deathRollTimeRemaining <= 5) DeathRoll.opacity = (deathRollTimeRemaining / 5).Clamp(0, 1);
         }
-    }
-    private void UpdateSettingsPanelVisibility(bool isVisible)
-    {
-        SettingsPanel.SetClassListIf("hide", x => UISettings.AutoCollapseSettings && !isVisible);
+        void UpdateSettingsPanelVisibility()
+        {
+            //ONLY hide settings when player can't interact with settings anyway - i.e. when there's no mouse cursor.
+            SettingsPanel.SetClassListIf("hide", x => UISettings.AutoCollapseSettings && UIManager._instance != null && !UIManager.instance.inputModule.allowMouseInput);
+            //GameManager.SilentInstance != null && PlayerData.HasInstance && (GameManager.instance.GameState is GameState.PLAYING or GameState.ENTERING_LEVEL or GameState.EXITING_LEVEL or GameState.CUTSCENE || PlayerData.instance.disableInventory || PlayerData.instance.disablePause));
+        }
     }
     internal void DisplayDeathDice(int rollAmount)
     {

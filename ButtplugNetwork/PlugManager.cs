@@ -1,10 +1,9 @@
-using Buttplug.Client;
-using Buttplug.Core;
+using ButtplugManaged;
+using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ButtplugSong.Network;
@@ -47,7 +46,7 @@ public class PlugManager
 
     //ButtplugManaged
     public ButtplugClient Client { get; private set; }
-    private ButtplugWebsocketConnector _connector;
+    private ButtplugWebsocketConnectorOptions _connector;
 
     //Network settings
     public string ServerAddress { get; private set; }
@@ -56,6 +55,9 @@ public class PlugManager
 
     //current manager settings
     internal float currentPower = 0;
+    internal bool rotationEnabled = false;
+    internal bool rotateClockwise = true; //anticlockwise if false
+
     public PlugManager(Action<string>? logger = null, string serverAddress = "localhost", int port = 12345, int retryAttempts = 5)
     {
         _logger = logger;
@@ -74,6 +76,7 @@ public class PlugManager
 
         Status = PlugManagerStatus.Initializing;
 
+        _connector = new ButtplugWebsocketConnectorOptions(new Uri($"ws://{ServerAddress}:{Port}/buttplug"));
         SetupClient();
 
         var success = await TryConnect();
@@ -124,28 +127,22 @@ public class PlugManager
         allowedToInitialize = true;
         Status = PlugManagerStatus.ClientSetUp;
     }
-    int tryConnectAttempts = 0;
     private async Task<bool> TryConnect()
     {
         if (Status == PlugManagerStatus.ShutDown) return false;
         if (Status == PlugManagerStatus.Uninitialized) SetupClient();
-        if (tryConnectAttempts >= RetryAttempts) return false; //retry attempt limit reached. 
-        tryConnectAttempts++;
-        _connector?.Dispose();
-        _connector = new ButtplugWebsocketConnector(new Uri($"ws://{ServerAddress}:{Port}/buttplug"));
         Status = PlugManagerStatus.ConnectingToServer;
         try
         {
-            Log($"Connecting to the server, attempt {tryConnectAttempts} of {RetryAttempts}");
-            await Client.ConnectAsync(_connector, CancellationToken.None);
+            Log("Connecting to the server...");
+            await Client.ConnectAsync(_connector);
             if (Status != PlugManagerStatus.DeviceConnected) Status = PlugManagerStatus.ConnectedToServer;
             Log("Connected to server.");
             _tryingToReconnect = false;
             allowedToInitialize = true;
-            tryConnectAttempts = 0;
             return await TryScanning();
         }
-        catch (ButtplugClientConnectorException e)
+        catch (ButtplugConnectorException e)
         {
             Log($"Could not connect to the server: {e.InnerException?.Message}");
         }
@@ -169,7 +166,7 @@ public class PlugManager
         Log("Starting to scan for devices.");
         try
         {
-            await Client.StartScanningAsync(CancellationToken.None);
+            await Client.StartScanningAsync();
             allowedToInitialize = true;
             _scanStartTime = DateTime.UtcNow;
         }
@@ -219,10 +216,10 @@ public class PlugManager
         Log("Disconnected from server.");
         DisconnectedFromServer?.Invoke();
         _tryingToReconnect = true;
-        SetupClient();
-        while (tryConnectAttempts <= RetryAttempts)
+        for (int _retries = 1; _retries <= RetryAttempts; _retries++)
         {
-            Log($"Reconnecting after disconnect...");
+            Log($"Reconnecting... (Attempt {_retries} of {RetryAttempts})");
+            SetupClient();
             bool success = await TryConnect();
             if (success) return;
             Log("Trying again in 5 seconds.");
@@ -273,7 +270,26 @@ public class PlugManager
     private async Task UpdatePowerLevels(bool routineUpdate)
     {
         await EnsureClientExists();
-        UpdateDevicePower?.Invoke(currentPower, routineUpdate);
+        if (UpdateDevicePower != null)
+        {
+            UpdateDevicePower.Invoke(currentPower, routineUpdate);
+            return;
+        }
+        //only continue here if not handled by UpdateDevicePower
+        foreach (ButtplugClientDevice plug in GetDevices())
+        {
+            //if (_duplicateUpdates == 0) Log($"Setting power on {plug.Name} to {currentPower * 100}%");
+            await plug.SendVibrateCmd(currentPower);
+            if (rotationEnabled)
+            {
+                if (!routineUpdate) rotateClockwise = !rotateClockwise; //if this is a fresh (non duplicate) signal, swap direction.
+                try
+                { //try adding rotation
+                    plug?.SendRotateCmd(currentPower, rotateClockwise);
+                }
+                catch { }
+            }
+        }
     }
     public IEnumerable<ButtplugClientDevice> GetDevices()
     {
@@ -293,6 +309,11 @@ public class PlugManager
         if (_duplicateUpdates >= 3) return; //allow for some duplicate updates as sometimes commands do get lost.
 
         currentPower = level.Clamp(0, 1);
-        Task.Factory.StartNew(() => UpdatePowerLevels(routineUpdate));
+        //UpdatePowerLevels();
+        Task.Factory.StartNew(() => UpdatePowerLevels(routineUpdate).FireAndForget(Log));
+    }
+    public void SetRotationEnabled(bool enabled)
+    {
+        rotationEnabled = enabled;
     }
 }

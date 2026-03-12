@@ -1,5 +1,5 @@
 ﻿[config]
-schemaVersion = "1.1.6"
+schemaVersion = "1.1.4"
 
 [package]
 # The name of the team you are publishing as
@@ -31,6 +31,10 @@ target = "/"
 # additional files and directories can be added to the package like this:
 [[build.copy]]
 source = "/../AssetBundles"
+target = "/"
+
+[[build.copy]]
+source = "/../Buttplug"
 target = "/"
 
 

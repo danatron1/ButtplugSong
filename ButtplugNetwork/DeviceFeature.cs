@@ -1,5 +1,4 @@
-﻿using Buttplug.Core.Messages;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ButtplugSong.Network;
@@ -23,11 +22,6 @@ public class DeviceFeature
     {
         FeatureType.Vibrate,
         FeatureType.Rotate,
-        FeatureType.Oscillate,
-        FeatureType.Constrict,
-        FeatureType.Spray,
-        FeatureType.Temperature,
-        FeatureType.Led,
         FeatureType.Position
     };
 
@@ -45,20 +39,51 @@ public class DeviceFeature
         StepCount = stepCount;
         IsEnabled = isSupported;
     }
-    internal static FeatureType[] AllFeatureTypes => (FeatureType[])Enum.GetValues(typeof(FeatureType));
-    internal static OutputType? FeatureToOutputType(FeatureType type)
+
+    internal static readonly string[] AllCommandKeys =
+    [
+        "VibrateCmd",
+        "RotateCmd",
+        "OscillateCmd",
+        "ConstrictionCmd",
+        "SprayCmd",
+        "TemperatureCmd",
+        "LedCmd",
+        "LinearCmd",
+        "ShockCmd"
+    ];
+
+    internal static FeatureType CommandKeyToType(string key)
+    {
+        return key switch
+        {
+            "VibrateCmd" => FeatureType.Vibrate,
+            "RotateCmd" => FeatureType.Rotate,
+            "OscillateCmd" => FeatureType.Oscillate,
+            "ConstrictionCmd" => FeatureType.Constrict,
+            "SprayCmd" => FeatureType.Spray,
+            "TemperatureCmd" => FeatureType.Temperature,
+            "LedCmd" => FeatureType.Led,
+            "LinearCmd" => FeatureType.Position,
+            "ShockCmd" => FeatureType.Shock,
+            _ => throw new ArgumentException($"Unknown command key: {key}"),
+        };
+    }
+
+    internal static string TypeToCommandKey(FeatureType type)
     {
         return type switch
         {
-            FeatureType.Vibrate => OutputType.Vibrate,
-            FeatureType.Rotate => OutputType.Rotate,
-            FeatureType.Oscillate => OutputType.Oscillate,
-            FeatureType.Constrict => OutputType.Constrict,
-            FeatureType.Spray => OutputType.Spray,
-            FeatureType.Temperature => OutputType.Temperature,
-            FeatureType.Led => OutputType.Led,
-            FeatureType.Position => OutputType.Position,
-            _ => null,
+            FeatureType.Vibrate => "VibrateCmd",
+            FeatureType.Rotate => "RotateCmd",
+            FeatureType.Oscillate => "OscillateCmd",
+            FeatureType.Constrict => "ConstrictionCmd",
+            FeatureType.Spray => "SprayCmd",
+            FeatureType.Temperature => "TemperatureCmd",
+            FeatureType.Led => "LedCmd",
+            FeatureType.Position => "LinearCmd",
+            FeatureType.Shock => "ShockCmd",
+            _ => throw new ArgumentException($"Unknown feature type: {type}"),
         };
     }
 }
