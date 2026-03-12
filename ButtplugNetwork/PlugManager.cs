@@ -1,6 +1,5 @@
 ﻿using Buttplug.Client;
 using Buttplug.Core;
-using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;

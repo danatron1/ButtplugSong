@@ -1,9 +1,9 @@
 ﻿using Buttplug.Client;
 using Buttplug.Core.Messages;
-using System.Threading;
 using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ButtplugSong.Network;
@@ -113,7 +113,7 @@ public class DeviceInfo
         foreach (var featureType in DeviceFeature.Implemented)
         {
             if (!Features.TryGetValue(featureType, out DeviceFeature feature)) continue;
-            if (!feature.IsSupported || !feature.IsEnabled) continue; 
+            if (!feature.IsSupported || !feature.IsEnabled) continue;
             var outputType = DeviceFeature.FeatureToOutputType(feature.Type);
             if (!outputType.HasValue) continue;
 
@@ -145,7 +145,7 @@ public class DeviceInfo
                     var posCmd = new DeviceOutputCommand(outputType.Value, PercentOrSteps.FromPercent(power), durationMs);
                     Device.RunOutputAsync(posCmd, CancellationToken.None).RunTask();
                     break;
-                //other features not implemented yet - see DeviceFeature.Implemented
+                    //other features not implemented yet - see DeviceFeature.Implemented
             }
         }
     }

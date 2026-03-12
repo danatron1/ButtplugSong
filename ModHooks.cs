@@ -192,7 +192,7 @@ internal static class ModHooks
     [HarmonyPatch]
     private static class SavedItemGetPatch
     {
-        
+
         static IEnumerable<MethodBase> TargetMethods()
         {
             var methods = new List<MethodBase>();

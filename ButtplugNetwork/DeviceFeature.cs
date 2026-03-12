@@ -1,5 +1,5 @@
-﻿using System;
-using Buttplug.Core.Messages;
+﻿using Buttplug.Core.Messages;
+using System;
 using System.Collections.Generic;
 
 namespace ButtplugSong.Network;
