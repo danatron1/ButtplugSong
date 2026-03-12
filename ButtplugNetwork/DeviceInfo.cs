@@ -93,6 +93,11 @@ public class DeviceInfo
                     Device.SendLinearCmd(durationMs, power).FireAndForget(Log);
                     break;
                     //other features not implemented yet - see DeviceFeature.Implemented
+
+                    //TODO: If other features are to be implemented, will have to move dependancy away from buttplugmanaged
+                    //This is a whole ordeal, as it turns out. Until then, it's staying as these features and no battery display.
+                    //Warning to any who may stray down this path: The task is not to be taken lightly
+                    //and if it is, thunderstore will smite you.
             }
         }
     }

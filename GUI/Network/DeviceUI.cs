@@ -20,7 +20,9 @@ internal class DeviceUI : GUISection
     private readonly Button _testButton;
 
     private readonly List<string> batteryColourStyles = ["red-text", "orange-text", "yellow-text", "grellow-text", "green-text"];
-    private int workingBatterySensor = 5;
+    //REMOVING BATTERY DISPLAY FOR NOW; Proved too troublesome to implement
+    //TODO: Implement battery sensor and increase this number to 5
+    private int workingBatterySensor = 0;
     private float timeSinceLastBatteryUpdate = 55;
 
     public DeviceUI(ButtplugClientDevice device, NetworkSettings parent) : base("Device")
