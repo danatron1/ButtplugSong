@@ -51,12 +51,6 @@
           "System.Text.Json": "5.0.2"
         }
       },
-      "ILRepack.Lib.MSBuild.Task": {
-        "type": "Direct",
-        "requested": "[2.0.44.1, )",
-        "resolved": "2.0.44.1",
-        "contentHash": "3XeHBO90AI5ggjmSeaSCVWuMuVWvNj+67ghtjTlOjhFSwhsFOJ3YU0GB/Zk19DG1grgHcJY195SIxCFVRiWf9Q=="
-      },
       "Microsoft.Unity.Analyzers": {
         "type": "Direct",
         "requested": "[1.26.0, )",

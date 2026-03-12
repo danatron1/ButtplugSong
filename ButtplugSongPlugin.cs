@@ -1,13 +1,27 @@
 using BepInEx;
 using GoodVibes;
 using HarmonyLib;
+using System;
 using System.IO;
+using System.Reflection;
 
 namespace ButtplugSong
 {
     [BepInAutoPlugin(id: ModId, name: ModName, version: ModVersion)]
     public partial class ButtplugSongPlugin : BaseUnityPlugin
     {
+        static ButtplugSongPlugin()
+        {
+            string libsDir = Path.Combine(
+                Path.GetDirectoryName(typeof(ButtplugSongPlugin).Assembly.Location),
+                "libs");
+            AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+            {
+                string dllName = new AssemblyName(args.Name).Name + ".dll";
+                string path = Path.Combine(libsDir, dllName);
+                return File.Exists(path) ? Assembly.LoadFrom(path) : null;
+            };
+        }
         public static string ModPath = "Not yet loaded";
 
         private const string ModId = "danatron1-ButtplugSongMod-Silksong";
