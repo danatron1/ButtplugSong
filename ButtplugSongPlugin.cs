@@ -12,13 +12,10 @@ namespace ButtplugSong
 
         private const string ModId = "danatron1-ButtplugSongMod-Silksong";
         private const string ModName = "ButtplugSong";
-        private const string ModVersion = "1.1.4"; //When updating, also change in thunderstore.toml & Directory.Build.props
+        private const string ModVersion = "1.1.5"; //When updating, also change in thunderstore.toml & Directory.Build.props
 
         private readonly Harmony harmony = new(ModId);
         private VibeManager vibe;
-
-        HeroController hc => HeroController.instance;
-
         private void Awake()
         {
             ModPath = Path.GetDirectoryName(Info.Location);

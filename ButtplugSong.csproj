@@ -12,6 +12,7 @@
     <AnalysisMode>recommended</AnalysisMode>
     <!-- Ignore warning about processor architecture mismatch with PlayMaker ConditionalExpression -->
     <NoWarn>$(NoWarn);MSB3270</NoWarn>
+	  <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <RestorePackagesWithLockFile>True</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(CI)' == 'true'">True</RestoreLockedMode>
@@ -26,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="Buttplug" Version="5.0.0" />
     <PackageReference Include="HarmonyX" Version="2.9.0" />
     <PackageReference Include="Hamunii.BepInEx.AutoPlugin" Version="2.1.0" PrivateAssets="all" />
     <PackageReference Include="Harmonize" Version="1.0.6" PrivateAssets="all" />
@@ -41,18 +43,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ButtplugManaged">
-      <HintPath>bin\Debug\netstandard2.1\ButtplugManaged.dll</HintPath>
-    </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>bin\Debug\netstandard2.1\websocket-sharp.dll</HintPath>
-    </Reference>
+	  <PackageReference Include="Buttplug" Version="5.0.0" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	  <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.34" PrivateAssets="all" />
   </ItemGroup>
+	<Target Name="MergeAssemblies" AfterTargets="Build" DependsOnTargets="ResolveReferences">
+		<PropertyGroup>
+			<ILRepackSearchDirs>@(ReferencePath->'%(RootDir)%(Directory)', ';');$(OutputPath)</ILRepackSearchDirs>
+		</PropertyGroup>
+		<ItemGroup>
+			<MergeInput Include="$(OutputPath)$(TargetName)$(TargetExt)" />
+			<MergeInput Include="$(OutputPath)Buttplug.dll" />
+			<MergeInput Include="$(OutputPath)Newtonsoft.Json.dll" />
+		</ItemGroup>
+		<ILRepack
+		  Parallel="true"
+		  DebugInfo="true"
+		  Internalize="true"
+		  InputAssemblies="@(MergeInput)"
+		  TargetKind="SameAsPrimaryAssembly"
+		  OutputFile="$(OutputPath)$(TargetName)$(TargetExt)"
+		  LibraryPath="$(ILRepackSearchDirs)"/>
+	</Target>
 
-  <Target Name="CopyAndPackageMod" AfterTargets="PostBuildEvent">
+	<Target Name="CopyAndPackageMod" AfterTargets="MergeAssemblies">
     <ItemGroup>
       <Binaries Include="$(TargetPath)" LocalDir="/" PackDir="/" />
       <Binaries Include="$(TargetDir)/$(TargetName).pdb" LocalDir="/" PackDir="/" />
+	  <ExtraFiles Include="$(ProjectDir)/AssetBundles/buttplugsong.gui" />
     </ItemGroup>
     <PropertyGroup>
       <ThunderstoreDir>$(ProjectDir)/thunderstore</ThunderstoreDir>
@@ -60,8 +78,9 @@
 
     <!-- Local install -->
     <Copy SourceFiles="@(Binaries)" DestinationFolder="$(SilksongPluginsFolder)/danatron1-$(AssemblyTitle)/%(Binaries.LocalDir)" Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')" />
+	<Copy SourceFiles="@(ExtraFiles)" DestinationFolder="$(SilksongPluginsFolder)/danatron1-$(AssemblyTitle)/" Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')" />
 
-    <!-- Thunderstore packaging -->
+	<!-- Thunderstore packaging -->
     <RemoveDir Directories="$(ThunderstoreDir)/temp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/temp" />
     <Copy SourceFiles="@(Binaries)" DestinationFolder="$(ThunderstoreDir)/temp/%(Binaries.PackDir)" />

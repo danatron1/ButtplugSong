@@ -9,6 +9,7 @@ namespace ButtplugSong.Helper;
 
 public static class ExtHelper
 {
+    public static void RunTask(this Task t) => Task.Run(() => t);
     public static async void FireAndForget(this Task t, Action<string> logging)
     {
         try
