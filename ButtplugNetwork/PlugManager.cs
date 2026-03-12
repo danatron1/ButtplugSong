@@ -1,4 +1,4 @@
-﻿using Buttplug.Client;
+using Buttplug.Client;
 using Buttplug.Core;
 using System;
 using System.Collections.Generic;
@@ -90,7 +90,7 @@ public class PlugManager
         Status = PlugManagerStatus.ShutDown;
         Disconnect();
     }
-    internal void Disconnect()
+    internal async void Disconnect()
     {
         if (Client is null) return;
         Log("Disconnecting old client.");
@@ -100,7 +100,8 @@ public class PlugManager
         Client.ErrorReceived -= ClientOnErrorReceived;
         Client.PingTimeout -= ClientOnPingTimeout;
 
-        Client.DisconnectAsync();
+        try { await Client.DisconnectAsync().ConfigureAwait(false); }
+        catch { }
         Client = null;
     }
     private void SetupClient()
@@ -130,6 +131,7 @@ public class PlugManager
         if (Status == PlugManagerStatus.Uninitialized) SetupClient();
         if (tryConnectAttempts >= RetryAttempts) return false; //retry attempt limit reached. 
         tryConnectAttempts++;
+        _connector?.Dispose();
         _connector = new ButtplugWebsocketConnector(new Uri($"ws://{ServerAddress}:{Port}/buttplug"));
         Status = PlugManagerStatus.ConnectingToServer;
         try

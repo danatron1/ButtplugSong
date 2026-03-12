@@ -1,4 +1,4 @@
-﻿using ButtplugSong.GUI.VibeSettings.Presets;
+using ButtplugSong.GUI.VibeSettings.Presets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +9,10 @@ namespace ButtplugSong.Helper;
 
 public static class ExtHelper
 {
-    public static void RunTask(this Task t) => Task.Run(() => t);
-    public static async void FireAndForget(this Task t, Action<string> logging)
+    public static async void RunTask(this Task t)
     {
-        try
-        {
-            await t;
-        }
-        catch (Exception e)
-        {
-            logging?.Invoke($"FAF Exception: {e.GetType()}; {e.Message}");
-            if (e.InnerException != null) logging?.Invoke($"    Inner: {e.InnerException.GetType()}; {e.InnerException.Message}");
-        }
+        try { await t.ConfigureAwait(false); }
+        catch { }
     }
 
     public static Random rng = new Random();
