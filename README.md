@@ -31,6 +31,8 @@ You will need:
 * Ensure Intiface Central is open, you've started the server, and clicked Start Scanning. The toy should be listed in Intiface.
 * Try installing [ModList](https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/Modlist/) to check that the mod loads correctly.
 
+(note: The battery display not working is a known issue. It has proved abnormally troublesome to implement. It is shelved for now. You can view battery levels in the Intiface app anyway)
+
 If you're still having issues (e.g. the mod is crashing), please contact me (danatron1) and send a copy of the `LogOutput.txt` debug log from your BepInEx folder. The path should look something like:
 
 `C:\Users\YourNameHere\AppData\Roaming\r2modmanPlus-local\HollowKnightSilksong\profiles\Default\BepInEx`
