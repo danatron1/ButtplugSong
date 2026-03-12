@@ -53,6 +53,7 @@
     <ItemGroup>
       <Binaries Include="$(TargetPath)" LocalDir="/" PackDir="/" />
       <Binaries Include="$(TargetDir)/$(TargetName).pdb" LocalDir="/" PackDir="/" />
+	  <ExtraFiles Include="$(ProjectDir)/AssetBundles/buttplugsong.gui" />
     </ItemGroup>
     <PropertyGroup>
       <ThunderstoreDir>$(ProjectDir)/thunderstore</ThunderstoreDir>
@@ -60,7 +61,8 @@
 
     <!-- Local install -->
     <Copy SourceFiles="@(Binaries)" DestinationFolder="$(SilksongPluginsFolder)/danatron1-$(AssemblyTitle)/%(Binaries.LocalDir)" Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')" />
-
+	  <Copy SourceFiles="@(ExtraFiles)" DestinationFolder="$(SilksongPluginsFolder)/danatron1-$(AssemblyTitle)/" Condition="'$(SilksongPluginsFolder)' != '' And Exists('$(SilksongPluginsFolder)')" />
+	  
     <!-- Thunderstore packaging -->
     <RemoveDir Directories="$(ThunderstoreDir)/temp;$(ThunderstoreDir)/dist" />
     <MakeDir Directories="$(ThunderstoreDir)/temp" />
