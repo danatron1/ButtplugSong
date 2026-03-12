@@ -48,12 +48,10 @@
 
   <ItemGroup>
 	  <PackageReference Include="Buttplug" Version="5.0.0" />
+    <ProjectReference Include="Patcher/ButtplugSong.Patcher.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
-	<Target Name="BuildPatcher" AfterTargets="Build">
-    <MSBuild Projects="Patcher/ButtplugSong.Patcher.csproj" Properties="Configuration=$(Configuration)" />
-  </Target>
 
-	<Target Name="CopyAndPackageMod" AfterTargets="BuildPatcher">
+	<Target Name="CopyAndPackageMod" AfterTargets="Build">
     <ItemGroup>
       <Binaries Include="$(TargetPath)" LocalDir="/" PackDir="/" />
       <Binaries Include="$(TargetDir)/$(TargetName).pdb" LocalDir="/" PackDir="/" />

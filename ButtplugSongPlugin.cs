@@ -23,8 +23,12 @@ namespace ButtplugSong
 
             harmony.PatchAll();
 
-            // Put your initialization logic here
             Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
+        }
+        private void OnDestroy()
+        {
+            vibe?.DisconnectPlug();
+            harmony.UnpatchSelf();
         }
     }
 }
