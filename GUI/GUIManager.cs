@@ -5,7 +5,6 @@ using ButtplugSong.GUI.VibeSettings.LimitSettings;
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.GUI.VibeSettings.VibeSources;
 using ButtplugSong.Helper;
-using GlobalEnums;
 using GoodVibes;
 using System;
 using System.Collections.Generic;
