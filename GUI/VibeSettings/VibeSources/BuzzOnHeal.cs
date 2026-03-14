@@ -39,7 +39,7 @@ internal class BuzzOnHeal : VibeSourceWithPunctuate
     }
     private int Healed(PlayerData data, int amount)
     {
-        if (NoHealingWhileVibing && Vibe.Logic.IsVibing) amount = 0;
+        if (NoHealing) amount = 0;
         if (!Enabled) return amount;
         Activate();
         return amount;
