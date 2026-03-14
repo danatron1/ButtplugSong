@@ -10,7 +10,7 @@ internal class BuzzOnHeal : VibeSourceWithPunctuate
     //no healing while vibing
     private readonly Toggle _noHealingWhileVibing;
     public bool NoHealingWhileVibing { get => _noHealingWhileVibing.value; set => _noHealingWhileVibing.value = value; }
-    public bool NoHealing => NoHealingWhileVibing && Vibe.Logic.IsVibing;
+    public bool NoHealing => NoHealingWhileVibing && !Vibe.Logic.TimerZero;
 
     //interrupted
     private readonly Toggle _interruption;

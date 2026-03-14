@@ -39,7 +39,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         RumbleEvents[UncategorisedRumbleEventName] = new(UncategorisedRumbleEventName, 1, _enabled, _scaleWithWeighting, false);
         RumbleEvents["PlayFootStep"] = CreateUI("Sprinting", 0.2f, false);
         RumbleEvents["PlayWallJump"] = CreateUI("WallJump", 0.3f, true);
-        RumbleEvents["HeroDash"] = CreateUI("Dashing", 0.4f, true);
+        RumbleEvents["HeroDash"] = CreateUI("Dashing", 0.6f, true);
         RumbleEvents["PlayAirDash"] = RumbleEvents["HeroDash"];
         RumbleEvents["StartShuttlecock"] = CreateUI("SprintJump", 0.8f, true);
         RumbleEvents["PlaySoftLand"] = CreateUI("Landing", 0.5f, true);
