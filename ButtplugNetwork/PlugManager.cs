@@ -1,9 +1,7 @@
-using ButtplugManaged;
 using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace ButtplugSong.Network;
@@ -12,20 +10,17 @@ public class PlugManager
 {
     public enum PlugManagerStatus
     {
-        //stable
         Uninitialized = 0,
-        ClientSetUp = 1, //initialized, not connected to server
-        ConnectedToServer = 2, //connected, not scanned
-        ScannedNoDevices = 3, //scanned, no devices
+        ClientSetUp = 1,
+        ConnectedToServer = 2,
+        ScannedNoDevices = 3,
         DeviceConnected = 4,
 
-        //in progress
         Initializing = 10,
         SettingUpClient = 11,
         ConnectingToServer = 12,
         ScanningForDevices = 13,
 
-        //stopped
         ShutDown = 100
     }
 
@@ -33,39 +28,33 @@ public class PlugManager
     private PlugManagerStatus Status
     {
         get => _status;
-        set
-        {
-            //if (_status != value) Log($"Status change: {_status} -> {value}");
-            _status = value;
-        }
+        set => _status = value;
     }
-    public static event Action<ButtplugClientDevice>? DeviceConnected;
-    public static event Action<ButtplugClientDevice>? DeviceDisconnected;
-    public static event Action? DisconnectedFromServer;
-    public static event Action<float, bool>? UpdateDevicePower;
 
-    //ButtplugManaged
-    public ButtplugClient Client { get; private set; }
-    private ButtplugWebsocketConnectorOptions _connector;
+    public static event Action<ButtplugDevice> DeviceConnected;
+    public static event Action<ButtplugDevice> DeviceDisconnected;
+    public static event Action DisconnectedFromServer;
+    public static event Action<float, bool> UpdateDevicePower;
 
-    //Network settings
+    public ButtplugRawClient Client { get; private set; }
+
     public string ServerAddress { get; private set; }
     public int Port { get; private set; }
     public int RetryAttempts { get; private set; }
 
-    //current manager settings
     internal float currentPower = 0;
     internal bool rotationEnabled = false;
-    internal bool rotateClockwise = true; //anticlockwise if false
+    internal bool rotateClockwise = true;
 
-    public PlugManager(Action<string>? logger = null, string serverAddress = "localhost", int port = 12345, int retryAttempts = 5)
+    public PlugManager(Action<string> logger = null, string serverAddress = "localhost", int port = 12345, int retryAttempts = 5)
     {
         _logger = logger;
         ServerAddress = serverAddress;
         Port = port;
         RetryAttempts = retryAttempts;
     }
-    private Action<string>? _logger;
+
+    private Action<string> _logger;
     private void Log(string s) => _logger?.Invoke(s);
 
     internal bool allowedToInitialize = true;
@@ -76,7 +65,6 @@ public class PlugManager
 
         Status = PlugManagerStatus.Initializing;
 
-        _connector = new ButtplugWebsocketConnectorOptions(new Uri($"ws://{ServerAddress}:{Port}/buttplug"));
         SetupClient();
 
         var success = await TryConnect();
@@ -88,25 +76,27 @@ public class PlugManager
 
         return true;
     }
+
     internal void ShutDown()
     {
         Status = PlugManagerStatus.ShutDown;
         Disconnect();
     }
-    internal async void Disconnect()
+
+    internal void Disconnect()
     {
-        if (Client is null) return;
+        if (Client == null) return;
         Log("Disconnecting old client.");
         Client.DeviceAdded -= OnDeviceAdded;
         Client.DeviceRemoved -= OnDeviceRemoved;
         Client.ServerDisconnect -= ClientOnServerDisconnect;
         Client.ErrorReceived -= ClientOnErrorReceived;
-        Client.PingTimeout -= ClientOnPingTimeout;
 
-        try { await Client.DisconnectAsync().ConfigureAwait(false); }
+        try { Client.Disconnect(); }
         catch { }
         Client = null;
     }
+
     private void SetupClient()
     {
         if (Status == PlugManagerStatus.ShutDown) return;
@@ -116,17 +106,16 @@ public class PlugManager
             Log("Existing client detected.");
             Disconnect();
         }
-        Client = new ButtplugClient("Plug Control");
+        Client = new ButtplugRawClient(Log);
         Client.DeviceAdded += OnDeviceAdded;
         Client.DeviceRemoved += OnDeviceRemoved;
         Client.ServerDisconnect += ClientOnServerDisconnect;
         Client.ErrorReceived += ClientOnErrorReceived;
-        Client.PingTimeout += ClientOnPingTimeout;
-        Log($"Client setup complete.");
-        //_triedToInitialize = false;
+        Log("Client setup complete.");
         allowedToInitialize = true;
         Status = PlugManagerStatus.ClientSetUp;
     }
+
     private async Task<bool> TryConnect()
     {
         if (Status == PlugManagerStatus.ShutDown) return false;
@@ -135,29 +124,25 @@ public class PlugManager
         try
         {
             Log("Connecting to the server...");
-            await Client.ConnectAsync(_connector);
+            await Client.ConnectAsync(ServerAddress, Port);
             if (Status != PlugManagerStatus.DeviceConnected) Status = PlugManagerStatus.ConnectedToServer;
             Log("Connected to server.");
             _tryingToReconnect = false;
             allowedToInitialize = true;
             return await TryScanning();
         }
-        catch (ButtplugConnectorException e)
+        catch (TimeoutException)
         {
-            Log($"Could not connect to the server: {e.InnerException?.Message}");
+            Log("Connection timed out.");
         }
-        catch (ButtplugHandshakeException e)
+        catch (Exception e)
         {
-            Log($"There was an error performing the handshake with the server: {e.InnerException?.Message}");
+            Log($"Could not connect to the server: {e.Message}");
         }
-        catch (SocketException e)
-        {
-            Log($"Target machine refused the connection. {e.InnerException?.Message}");
-        }
-        //if it reaches here, it failed to connect.
         Status = PlugManagerStatus.ClientSetUp;
         return false;
     }
+
     private DateTime? _scanStartTime = null;
     async Task<bool> TryScanning()
     {
@@ -166,50 +151,41 @@ public class PlugManager
         Log("Starting to scan for devices.");
         try
         {
-            await Client.StartScanningAsync();
+            Client.StartScanning();
+            Client.RequestDeviceList();
             allowedToInitialize = true;
             _scanStartTime = DateTime.UtcNow;
         }
-        catch (ButtplugException ex)
+        catch (Exception ex)
         {
-            Log($"Failed to start scanning for devices: {ex.InnerException?.Message}");
-            Status = PlugManagerStatus.ConnectedToServer;
-            return false;
-        }
-        catch (SocketException ex)
-        {
-            Log($"Target machine refused the connection. {ex.InnerException?.Message}");
+            Log($"Failed to start scanning for devices: {ex.Message}");
             Status = PlugManagerStatus.ConnectedToServer;
             return false;
         }
         return true;
     }
-    private void OnDeviceAdded(object sender, DeviceAddedEventArgs e)
+
+    private void OnDeviceAdded(ButtplugDevice device)
     {
-        Log($"Device Connected: {e.Device.Name}");
+        Log($"Device Connected: {device.Name}");
         Status = PlugManagerStatus.DeviceConnected;
-        DeviceConnected?.Invoke(e.Device);
+        DeviceConnected?.Invoke(device);
     }
 
-    private void OnDeviceRemoved(object sender, DeviceRemovedEventArgs e)
+    private void OnDeviceRemoved(ButtplugDevice device)
     {
-        Log($"Device Disconnected: {e.Device.Name}");
+        Log($"Device Disconnected: {device.Name}");
         if (!GetDevices().Any()) Status = PlugManagerStatus.ConnectedToServer;
-        DeviceDisconnected?.Invoke(e.Device);
+        DeviceDisconnected?.Invoke(device);
     }
 
-    private void ClientOnErrorReceived(object sender, ButtplugExceptionEventArgs e)
+    private void ClientOnErrorReceived(string error)
     {
-        Log($"Received an error: {e.Exception.Message}");
-    }
-
-    private void ClientOnPingTimeout(object sender, EventArgs e)
-    {
-        Log("Server ping timed out.");
+        Log($"Received an error: {error}");
     }
 
     bool _tryingToReconnect = false;
-    private async void ClientOnServerDisconnect(object sender, EventArgs e)
+    private async void ClientOnServerDisconnect()
     {
         if (Status == PlugManagerStatus.ShutDown) return;
         if (_tryingToReconnect) return;
@@ -228,6 +204,7 @@ public class PlugManager
         _tryingToReconnect = false;
         Log("Could not reconnect to server.");
     }
+
     private async Task EnsureClientExists()
     {
         if ((int)Status >= 10)
@@ -237,7 +214,7 @@ public class PlugManager
             {
                 if (_scanStartTime.HasValue && DateTime.UtcNow - _scanStartTime.Value > TimeSpan.FromSeconds(10))
                 {
-                    await Initialize(); //Connection dropped, start over
+                    await Initialize();
                 }
             }
             await Task.Delay(TimeSpan.FromMilliseconds(250));
@@ -245,28 +222,29 @@ public class PlugManager
         }
         if (Client == null)
         {
-            Log($"Intiface Client is null. Trying to setup.");
+            Log("Intiface Client is null. Trying to setup.");
             if (!allowedToInitialize) SetupClient();
             if (!await Initialize()) return;
         }
-        if (!Client!.Connected)
+        if (!Client.Connected)
         {
-            Log($"Intiface Client is disconnected - Is the server running?");
+            Log("Intiface Client is disconnected - Is the server running?");
             if (!await TryConnect())
             {
-                Log($"Failed to connect. Resetting client to reinitialize");
+                Log("Failed to connect. Resetting client to reinitialize");
                 SetupClient();
                 if (await Initialize()) Log("Reinitialized!");
                 else return;
             }
             else Log("Reconnected!");
         }
-        else if (Client.Devices.Length == 0)
+        else if (!Client.Devices.Any())
         {
-            Log($"Intiface Client connected, but no devices are connected.");
+            Log("Intiface Client connected, but no devices are connected.");
             if (Status == PlugManagerStatus.ConnectedToServer) await TryScanning();
         }
     }
+
     private async Task UpdatePowerLevels(bool routineUpdate)
     {
         await EnsureClientExists();
@@ -275,43 +253,40 @@ public class PlugManager
             UpdateDevicePower.Invoke(currentPower, routineUpdate);
             return;
         }
-        //only continue here if not handled by UpdateDevicePower
-        foreach (ButtplugClientDevice plug in GetDevices())
+        foreach (ButtplugDevice plug in GetDevices())
         {
-            //if (_duplicateUpdates == 0) Log($"Setting power on {plug.Name} to {currentPower * 100}%");
-            await plug.SendVibrateCmd(currentPower);
+            plug.SendVibrateCmd(currentPower);
             if (rotationEnabled)
             {
-                if (!routineUpdate) rotateClockwise = !rotateClockwise; //if this is a fresh (non duplicate) signal, swap direction.
-                try
-                { //try adding rotation
-                    plug?.SendRotateCmd(currentPower, rotateClockwise);
-                }
+                if (!routineUpdate) rotateClockwise = !rotateClockwise;
+                try { plug.SendRotateCmd(currentPower, rotateClockwise); }
                 catch { }
             }
         }
     }
-    public IEnumerable<ButtplugClientDevice> GetDevices()
+
+    public IEnumerable<ButtplugDevice> GetDevices()
     {
-        if (Client is not null && Client.Devices is not null)
+        if (Client != null && Client.Devices != null)
         {
-            foreach (ButtplugClientDevice? plug in Client.Devices)
+            foreach (ButtplugDevice device in Client.Devices)
             {
-                if (plug is not null) yield return plug;
+                if (device != null) yield return device;
             }
         }
     }
+
     private int _duplicateUpdates;
     public void SetPowerLevel(float level, bool routineUpdate)
     {
         if (level == currentPower) _duplicateUpdates++;
         else _duplicateUpdates = 0;
-        if (_duplicateUpdates >= 3) return; //allow for some duplicate updates as sometimes commands do get lost.
+        if (_duplicateUpdates >= 3) return;
 
         currentPower = level.Clamp(0, 1);
-        //UpdatePowerLevels();
         Task.Factory.StartNew(() => UpdatePowerLevels(routineUpdate).FireAndForget(Log));
     }
+
     public void SetRotationEnabled(bool enabled)
     {
         rotationEnabled = enabled;

@@ -243,6 +243,6 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         if (!ScaleWithWeighting) Activate(weightedEvent.EnabledText);
         else Activate(weightedEvent.Weight, weightedEvent.EnabledText);
     }
-    private void OnMaxHealthUp(int amount) => TryActivate("fullHeart");
-    private void OnMaxSilkUp(int amount) => TryActivate("fullSpool");
+    private void OnMaxHealthUp() => TryActivate("fullHeart");
+    private void OnMaxSilkUp() => TryActivate("fullSpool");
 }
