@@ -193,7 +193,7 @@ internal class GUIManager : MonoBehaviour
         UISettings = new UISettings();
         VibeLog = Root.Q<GroupBox>(nameof(VibeLog));
 
-        LogActivity("Vibe Log Initialized!\nDebug logs are found in \"LogOutput.log\" in your BepInEx folder. This log is just for vibe activity.");
+        LogActivity($"Vibe Log Initialized!\nRunning {ButtplugSongPlugin.Name} v{ButtplugSongPlugin.Version}\nDebug logs are found in \"LogOutput.log\" in your BepInEx folder. This log is just for vibe activity.");
 
         DebugInfo.AddToClassList("hide");
     }
