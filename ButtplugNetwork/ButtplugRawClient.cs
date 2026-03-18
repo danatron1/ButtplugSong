@@ -189,7 +189,6 @@ public class ButtplugRawClient
                 {
                     string msg = messageBuffer.ToString();
                     messageBuffer.Clear();
-                    _log($"RAW MSG: {msg}");
                     try { HandleMessage(msg); }
                     catch (Exception ex) { _log($"Message handle error: {ex.Message}"); }
                 }
@@ -291,6 +290,8 @@ public class ButtplugRawClient
         {
             Devices.Remove(dev);
             DeviceRemoved?.Invoke(dev);
+            // Re-start scanning so the device can reconnect
+            StartScanning();
         }
     }
 
@@ -314,12 +315,10 @@ public class ButtplugRawClient
         {
             uint index = body.Value<uint>("DeviceIndex");
             string name = body.Value<string>("DeviceName") ?? "Unknown";
-            _log($"Parsing device: {name} (idx={index})");
 
             var features = new List<ButtplugDevice.Feature>();
             var msgs = body["DeviceMessages"] as JObject;
-            _log($"DeviceMessages keys: {(msgs != null ? string.Join(", ", msgs.Properties().Select(p => p.Name)) : "NULL")}");
-            if (msgs != null) _log($"DeviceMessages JSON: {msgs.ToString(Newtonsoft.Json.Formatting.None)}");
+
             if (msgs != null)
             {
                 var scalarCmd = msgs["ScalarCmd"] as JArray;
@@ -358,7 +357,7 @@ public class ButtplugRawClient
             }
 
             bool hasBattery = HasBatteryCapability(msgs);
-            _log($"Device {name}: hasBattery={hasBattery}, features={features.Count}");
+            _log($"Device {name}: features={features.Count}, hasBattery={hasBattery}");
             return new ButtplugDevice(name, index, features, hasBattery, this);
         }
         catch (Exception ex)
@@ -370,9 +369,8 @@ public class ButtplugRawClient
 
     private bool HasBatteryCapability(JObject msgs)
     {
-        if (msgs == null) { _log("Battery check: msgs is null"); return false; }
+        if (msgs == null) return false;
         var sensorRead = msgs["SensorReadCmd"];
-        _log($"Battery check: SensorReadCmd = {(sensorRead != null ? sensorRead.ToString(Newtonsoft.Json.Formatting.None) : "NOT FOUND")}");
         if (sensorRead == null) return false;
         var arr = sensorRead as JArray;
         if (arr != null)
@@ -380,13 +378,8 @@ public class ButtplugRawClient
             foreach (JObject sensor in arr)
             {
                 string sType = sensor.Value<string>("SensorType");
-                _log($"Battery check: found sensor type = {sType}");
                 if (sType == "Battery") return true;
             }
-        }
-        else
-        {
-            _log($"Battery check: SensorReadCmd is {sensorRead.Type}, not JArray");
         }
         return false;
     }

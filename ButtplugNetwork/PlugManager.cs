@@ -31,10 +31,10 @@ public class PlugManager
         set => _status = value;
     }
 
-    public static event Action<ButtplugDevice> DeviceConnected;
-    public static event Action<ButtplugDevice> DeviceDisconnected;
-    public static event Action DisconnectedFromServer;
-    public static event Action<float, bool> UpdateDevicePower;
+    public static event Action<ButtplugDevice>? DeviceConnected;
+    public static event Action<ButtplugDevice>? DeviceDisconnected;
+    public static event Action? DisconnectedFromServer;
+    public static event Action<float, bool>? UpdateDevicePower;
 
     public ButtplugRawClient Client { get; private set; }
 

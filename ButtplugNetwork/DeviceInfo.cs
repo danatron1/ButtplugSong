@@ -39,7 +39,7 @@ public class DeviceInfo
         foreach (var rawFeature in Device.Features)
         {
             FeatureType type = ActuatorTypeToFeatureType(rawFeature.ActuatorType);
-            bool supported = true;
+            bool supported = Device.SupportsFeature(rawFeature.ActuatorType);
             uint stepCount = (uint)rawFeature.StepCount;
 
             // Keep one entry per type (first actuator wins, matching original dict pattern)
@@ -56,7 +56,7 @@ public class DeviceInfo
             "Rotate" => FeatureType.Rotate,
             "Oscillate" => FeatureType.Oscillate,
             "Constrict" => FeatureType.Constrict,
-            "Inflate" => FeatureType.Spray,
+            "Inflate" => FeatureType.Constrict,
             "Position" => FeatureType.Position,
             _ => FeatureType.Vibrate,
         };
@@ -101,6 +101,7 @@ public class DeviceInfo
 
     private void ActivateFeatures(float power, bool routineUpdate)
     {
+        if (!IsEnabled) return;
         foreach (var featureType in DeviceFeature.Implemented)
         {
             if (!Features.TryGetValue(featureType, out DeviceFeature feature)) continue;

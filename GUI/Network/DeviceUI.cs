@@ -105,7 +105,7 @@ internal class DeviceUI : GUISection
         {
             _batteryLabel.text = "Battery unknown";
             SetBatteryColour(0);
-            timeSinceLastBatteryUpdate = 50;
+            timeSinceLastBatteryUpdate = 50; //retry again in 10 seconds
         }
         void SetBatteryColour(double battery)
         {
