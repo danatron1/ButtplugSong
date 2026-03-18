@@ -8,15 +8,15 @@ public class ButtplugDevice
 {
     public string Name { get; }
     public uint Index { get; }
-    public List<Feature> Features { get; }
+    public List<DeviceFeature> Features { get; }
     public bool HasBattery { get; }
     private readonly ButtplugRawClient _client;
 
-    public ButtplugDevice(string name, uint index, List<Feature> features, bool hasBattery, ButtplugRawClient client)
+    public ButtplugDevice(string name, uint index, List<DeviceFeature> features, bool hasBattery, ButtplugRawClient client)
     {
         Name = name ?? "Unknown";
         Index = index;
-        Features = features ?? new List<Feature>();
+        Features = features ?? new List<DeviceFeature>();
         HasBattery = hasBattery;
         _client = client;
     }
@@ -68,7 +68,7 @@ public class ButtplugDevice
     {
         foreach (var f in Features)
         {
-            if (f.ActuatorType == actuatorType) return f.StepCount;
+            if (f.ActuatorType == actuatorType) return (int)(f.StepCount ?? 0);
         }
         return 0;
     }
@@ -81,21 +81,5 @@ public class ButtplugDevice
             if (f.ActuatorType == actuatorType) count++;
         }
         return count;
-    }
-
-    public class Feature
-    {
-        public string CommandType { get; }
-        public string ActuatorType { get; }
-        public int ActuatorIndex { get; }
-        public int StepCount { get; }
-
-        public Feature(string commandType, string actuatorType, int actuatorIndex, int stepCount)
-        {
-            CommandType = commandType;
-            ActuatorType = actuatorType;
-            ActuatorIndex = actuatorIndex;
-            StepCount = stepCount;
-        }
     }
 }

@@ -316,7 +316,7 @@ public class ButtplugRawClient
             uint index = body.Value<uint>("DeviceIndex");
             string name = body.Value<string>("DeviceName") ?? "Unknown";
 
-            var features = new List<ButtplugDevice.Feature>();
+            var features = new List<DeviceFeature>();
             var msgs = body["DeviceMessages"] as JObject;
 
             if (msgs != null)
@@ -329,7 +329,7 @@ public class ButtplugRawClient
                         var entry = scalarCmd[i] as JObject;
                         string actType = entry?.Value<string>("ActuatorType") ?? "Vibrate";
                         int stepCount = entry?.Value<int?>("StepCount") ?? 20;
-                        features.Add(new ButtplugDevice.Feature("ScalarCmd", actType, i, stepCount));
+                        features.Add(new DeviceFeature("ScalarCmd", actType, i, stepCount));
                     }
                 }
 
@@ -340,7 +340,7 @@ public class ButtplugRawClient
                     {
                         var entry = rotateCmd[i] as JObject;
                         int stepCount = entry?.Value<int?>("StepCount") ?? 20;
-                        features.Add(new ButtplugDevice.Feature("RotateCmd", "Rotate", i, stepCount));
+                        features.Add(new DeviceFeature("RotateCmd", "Rotate", i, stepCount));
                     }
                 }
 
@@ -351,7 +351,7 @@ public class ButtplugRawClient
                     {
                         var entry = linearCmd[i] as JObject;
                         int stepCount = entry?.Value<int?>("StepCount") ?? 100;
-                        features.Add(new ButtplugDevice.Feature("LinearCmd", "Position", i, stepCount));
+                        features.Add(new DeviceFeature("LinearCmd", "Position", i, stepCount));
                     }
                 }
             }
