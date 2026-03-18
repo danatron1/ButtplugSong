@@ -204,7 +204,7 @@ internal static class ModHooks
         {
             var methods = new List<MethodBase>();
 
-            var baseGet = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(bool) });
+            var baseGet = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(int), typeof(bool) });
             if (baseGet != null && !baseGet.IsAbstract)
                 methods.Add(baseGet);
 
