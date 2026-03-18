@@ -52,6 +52,7 @@ public class PlugManager
     public string ServerAddress { get; private set; }
     public int Port { get; private set; }
     public int RetryAttempts { get; private set; }
+    private int tryConnectAttempts = 0;
 
     //current manager settings
     internal float currentPower = 0;
@@ -131,10 +132,12 @@ public class PlugManager
     {
         if (Status == PlugManagerStatus.ShutDown) return false;
         if (Status == PlugManagerStatus.Uninitialized) SetupClient();
+        if (tryConnectAttempts >= RetryAttempts) return false; //retry attempt limit reached. 
+        tryConnectAttempts++;
         Status = PlugManagerStatus.ConnectingToServer;
         try
         {
-            Log("Connecting to the server...");
+            Log($"Connecting to the server, attempt {tryConnectAttempts} of {RetryAttempts}");
             await Client.ConnectAsync(_connector);
             if (Status != PlugManagerStatus.DeviceConnected) Status = PlugManagerStatus.ConnectedToServer;
             Log("Connected to server.");
@@ -215,11 +218,13 @@ public class PlugManager
         if (_tryingToReconnect) return;
         Log("Disconnected from server.");
         DisconnectedFromServer?.Invoke();
-        _tryingToReconnect = true;
-        for (int _retries = 1; _retries <= RetryAttempts; _retries++)
+        _tryingToReconnect = true; 
+        SetupClient();
+
+        while (tryConnectAttempts <= RetryAttempts)
         {
-            Log($"Reconnecting... (Attempt {_retries} of {RetryAttempts})");
-            SetupClient();
+            Log($"Reconnecting after disconnect...");
+
             bool success = await TryConnect();
             if (success) return;
             Log("Trying again in 5 seconds.");
