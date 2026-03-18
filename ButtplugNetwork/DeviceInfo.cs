@@ -56,7 +56,7 @@ public class DeviceInfo
             "Rotate" => FeatureType.Rotate,
             "Oscillate" => FeatureType.Oscillate,
             "Constrict" => FeatureType.Constrict,
-            "Inflate" => FeatureType.Constrict,
+            "Spray" => FeatureType.Spray,
             "Position" => FeatureType.Position,
             _ => FeatureType.Vibrate,
         };
@@ -134,7 +134,7 @@ public class DeviceInfo
             FeatureType.Rotate => "Rotate",
             FeatureType.Oscillate => "Oscillate",
             FeatureType.Constrict => "Constrict",
-            FeatureType.Spray => "Inflate",
+            FeatureType.Spray => "Spray",
             FeatureType.Position => "Position",
             _ => "Vibrate",
         };
