@@ -36,15 +36,14 @@ public class DeviceInfo
 
     private void PopulateFeatures()
     {
-        foreach (var rawFeature in Device.Features)
+        foreach (string cmdKey in DeviceFeature.AllCommandKeys)
         {
-            FeatureType type = ActuatorTypeToFeatureType(rawFeature.ActuatorType);
-            bool supported = Device.SupportsFeature(rawFeature.ActuatorType);
-            uint stepCount = (uint)rawFeature.StepCount;
+            var type = DeviceFeature.CommandKeyToType(cmdKey);
+            string actuatorType = FeatureTypeToActuatorType(type);
+            bool supported = Device.SupportsFeature(actuatorType);
+            uint? stepCount = supported ? (uint?)Device.GetStepCount(actuatorType) : null;
 
-            // Keep one entry per type (first actuator wins, matching original dict pattern)
-            if (!Features.ContainsKey(type))
-                Features[type] = new DeviceFeature(this, type, supported, stepCount);
+            Features[type] = new DeviceFeature(this, type, supported, stepCount);
         }
     }
 
