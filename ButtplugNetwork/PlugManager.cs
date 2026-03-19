@@ -131,6 +131,7 @@ public class PlugManager
             if (Status != PlugManagerStatus.DeviceConnected) Status = PlugManagerStatus.ConnectedToServer;
             Log("Connected to server.");
             _tryingToReconnect = false;
+            tryConnectAttempts = 0; //reset on successful connect
             allowedToInitialize = true;
             return await TryScanning();
         }
