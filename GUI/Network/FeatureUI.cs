@@ -1,4 +1,4 @@
-﻿using ButtplugSong.Helper;
+using ButtplugSong.Helper;
 using ButtplugSong.Network;
 using UnityEngine.UIElements;
 
@@ -15,19 +15,22 @@ internal class FeatureUI : GUISection
         parent = deviceUI;
 
         featureToggle = localRoot.Q<Toggle>($"{Identifier}Feature");
-        FeatureHidden = !feature.IsSupported || !DeviceFeature.Implemented.Contains(featureType);
+        FeatureHidden = featureToggle == null || !feature.IsSupported || !DeviceFeature.Implemented.Contains(featureType);
 
         if (FeatureHidden)
         {
             feature.IsEnabled = false;
-            featureToggle.AddToClassList("hide");
+            featureToggle?.AddToClassList("hide");
             return;
         }
 
         Label stepCount = localRoot.Q<Label>($"{Identifier}StepCount");
-        if (!feature.StepCount.HasValue) stepCount.AddToClassList("hide");
-        else if (feature.StepCount < 1_000) stepCount.text = feature.StepCount.Value.ToString();
-        else stepCount.text = $"{feature.StepCount.Value / 1000:f1}K";
+        if (!feature.StepCount.HasValue) stepCount?.AddToClassList("hide");
+        else if (stepCount != null)
+        {
+            if (feature.StepCount < 1_000) stepCount.text = feature.StepCount.Value.ToString();
+            else stepCount.text = $"{feature.StepCount.Value / 1000:f1}K";
+        }
 
         feature.IsEnabled = featureToggle.value;
         featureToggle.DependsOn(parent._enabled).RegisterValueChangedCallback(evt => feature.IsEnabled = evt.newValue);
@@ -41,7 +44,7 @@ internal class RotateFeatureUI : FeatureUI
         dropdown = localRoot.Q<DropdownField>("RotateFeatureDirection");
         if (FeatureHidden)
         {
-            dropdown.AddToClassList("hide");
+            dropdown?.AddToClassList("hide");
             return;
         }
         dropdown.DependsOn(parent._enabled, featureToggle).RegisterValueChangedCallback(DropdownChanged);
@@ -60,7 +63,7 @@ internal class TemperatureFeatureUI : FeatureUI
         neutralTemp = localRoot.Q<FloatField>("TemperatureFeatureNeutral");
         if (FeatureHidden)
         {
-            neutralTemp.AddToClassList("hide");
+            neutralTemp?.AddToClassList("hide");
             return;
         }
         neutralTemp.DependsOn(parent._enabled, featureToggle).SetupValueClamping(0, 100).RegisterValueChangedCallback(NeutralTempChanged);
@@ -79,7 +82,7 @@ internal class PositionFeatureUI : FeatureUI
         moveDuration = localRoot.Q<FloatField>("PositionFeatureDuration");
         if (FeatureHidden)
         {
-            moveDuration.AddToClassList("hide");
+            moveDuration?.AddToClassList("hide");
             return;
         }
         moveDuration.DependsOn(parent._enabled, featureToggle).SetupValueClamping(0.05f, 60).RegisterValueChangedCallback(PositionMoveDurationChanged);
