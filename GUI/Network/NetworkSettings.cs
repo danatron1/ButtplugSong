@@ -1,4 +1,3 @@
-﻿using ButtplugManaged;
 using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
@@ -59,7 +58,7 @@ internal class NetworkSettings : GUISection, IPresetLoadable
 
     protected readonly Label _debuggingHelpLabel;
 
-    private Dictionary<ButtplugClientDevice, DeviceUI> Devices = new();
+    private Dictionary<ButtplugDevice, DeviceUI> Devices = new();
     public NetworkSettings() : base("Network")
     {
         instance = this;
@@ -93,13 +92,13 @@ internal class NetworkSettings : GUISection, IPresetLoadable
     {
         foreach (var device in Devices.Values.ToArray()) device.Update(realTime);
     }
-    public void AddDevice(ButtplugClientDevice device)
+    public void AddDevice(ButtplugDevice device)
     {
         if (device is null || Devices.ContainsKey(device)) return;
         Devices[device] = new DeviceUI(device, this);
         _debuggingHelpLabel.AddToClassList("hide");
     }
-    public void RemoveDevice(ButtplugClientDevice device)
+    public void RemoveDevice(ButtplugDevice device)
     {
         if (device is null || !Devices.TryGetValue(device, out DeviceUI? deviceUI)) return;
         deviceUI.Unload();

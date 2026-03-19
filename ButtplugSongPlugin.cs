@@ -12,7 +12,7 @@ namespace ButtplugSong
 
         private const string ModId = "danatron1-ButtplugSongMod-Silksong";
         private const string ModName = "ButtplugSong";
-        private const string ModVersion = "1.1.9"; //When updating, also change in thunderstore.toml & Directory.Build.props
+        private const string ModVersion = "1.2.2"; //When updating, also change in thunderstore.toml & Directory.Build.props
 
         private readonly Harmony harmony = new(ModId);
         private VibeManager vibe;
@@ -24,6 +24,7 @@ namespace ButtplugSong
             vibe = new VibeManager(ModPath, Logger.LogInfo);
 
             harmony.PatchAll();
+            ModHooks.ApplySetVariablePatch(harmony);
 
             Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
         }

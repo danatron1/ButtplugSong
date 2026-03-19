@@ -1,4 +1,3 @@
-using ButtplugManaged;
 using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ namespace ButtplugSong.Network;
 
 public class DeviceInfo
 {
-    internal readonly ButtplugClientDevice Device;
+    internal readonly ButtplugDevice Device;
     private readonly Action<string> Log;
 
     public string Name => Device.Name;
@@ -27,7 +26,7 @@ public class DeviceInfo
     private float _testTimeRemaining;
     private bool _isTesting;
 
-    public DeviceInfo(ButtplugClientDevice device, Action<string> log)
+    public DeviceInfo(ButtplugDevice device, Action<string> log)
     {
         Device = device;
         Log = log;
@@ -38,20 +37,53 @@ public class DeviceInfo
 
     private void PopulateFeatures()
     {
-        foreach (string cmdKey in DeviceFeature.AllCommandKeys)
+        // Collect device-reported features
+        var reported = new Dictionary<FeatureType, uint>();
+        foreach (var rawFeature in Device.Features)
         {
-            var type = DeviceFeature.CommandKeyToType(cmdKey);
-            bool supported = Device.AllowedMessages.TryGetValue(cmdKey, out var deviceMessageDetails);
-            uint? stepCount = null;
+            FeatureType type = ActuatorTypeToFeatureType(rawFeature.ActuatorType);
+            if (!reported.ContainsKey(type))
+                reported[type] = (uint)(rawFeature.StepCount ?? 0);
+        }
 
-            if (supported && deviceMessageDetails.StepCount != null && deviceMessageDetails.StepCount.Count > 0) stepCount = deviceMessageDetails.StepCount[0];
-
-            Features[type] = new DeviceFeature(this, type, supported, stepCount);
+        // Create entries for ALL feature types, marking unsupported ones
+        foreach (FeatureType type in Enum.GetValues(typeof(FeatureType)))
+        {
+            bool supported = reported.TryGetValue(type, out uint stepCount);
+            Features[type] = new DeviceFeature(this, type, supported, supported ? stepCount : null);
         }
     }
-    public Task<bool> TryRefreshBattery()
+
+    private static FeatureType ActuatorTypeToFeatureType(string actuatorType)
     {
-        return Task.FromResult(false);
+        return actuatorType switch
+        {
+            "Vibrate" => FeatureType.Vibrate,
+            "Rotate" => FeatureType.Rotate,
+            "Oscillate" => FeatureType.Oscillate,
+            "Constrict" => FeatureType.Constrict,
+            "Spray" => FeatureType.Spray,
+            "Position" => FeatureType.Position,
+            _ => FeatureType.Vibrate,
+        };
+    }
+
+    public async Task<bool> TryRefreshBattery()
+    {
+        try
+        {
+            double? level = await Device.ReadBatteryAsync();
+            if (level.HasValue)
+            {
+                Battery = level.Value;
+                return true;
+            }
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public void Test(float power, float duration)
@@ -70,37 +102,35 @@ public class DeviceInfo
 
         _isTesting = false;
         _testTimeRemaining = 0f;
-        Device.SendStopDeviceCmd().FireAndForget(Log);
+        Device.SendStopCmd();
     }
 
     private void ActivateFeatures(float power, bool routineUpdate)
     {
+        if (!IsEnabled) return;
         foreach (var featureType in DeviceFeature.Implemented)
         {
             if (!Features.TryGetValue(featureType, out DeviceFeature feature)) continue;
             if (!feature.IsSupported || !feature.IsEnabled) continue;
+
             switch (feature.Type)
             {
                 case FeatureType.Vibrate:
-                    Device.SendVibrateCmd(power).FireAndForget(Log);
+                    Device.SendVibrateCmd(power);
                     break;
                 case FeatureType.Rotate:
                     if (AlternateRotation) RotateClockwise = !RotateClockwise;
-                    Device.SendRotateCmd(power, RotateClockwise).FireAndForget(Log);
+                    Device.SendRotateCmd(power, RotateClockwise);
                     break;
                 case FeatureType.Position:
                     uint durationMs = (uint)(MoveDuration * 1000f);
-                    Device.SendLinearCmd(durationMs, power).FireAndForget(Log);
+                    Device.SendLinearCmd(durationMs, power);
                     break;
                     //other features not implemented yet - see DeviceFeature.Implemented
-
-                    //TODO: If other features are to be implemented, will have to move dependancy away from buttplugmanaged
-                    //This is a whole ordeal, as it turns out. Until then, it's staying as these features and no battery display.
-                    //Warning to any who may stray down this path: The task is not to be taken lightly
-                    //and if it is, thunderstore will smite you.
             }
         }
     }
+
     public void Unload()
     {
         PlugManager.UpdateDevicePower -= ActivateFeatures;

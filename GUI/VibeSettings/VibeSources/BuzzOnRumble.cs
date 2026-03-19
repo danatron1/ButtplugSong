@@ -1,4 +1,4 @@
-﻿using ButtplugSong.GUI.VibeSettings.Presets;
+using ButtplugSong.GUI.VibeSettings.Presets;
 using ButtplugSong.Helper;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,22 +37,59 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         VisualElement parent = Get<Label>("RumbleEventsListLabel").parent;
 
         RumbleEvents[UncategorisedRumbleEventName] = new(UncategorisedRumbleEventName, 1, _enabled, _scaleWithWeighting, false);
+
+        // Movement - basic
         RumbleEvents["PlayFootStep"] = CreateUI("Sprinting", 0.2f, false);
         RumbleEvents["PlayWallJump"] = CreateUI("WallJump", 0.3f, true);
         RumbleEvents["HeroDash"] = CreateUI("Dashing", 0.6f, true);
+        RumbleEvents["PlayDash"] = RumbleEvents["HeroDash"];
         RumbleEvents["PlayAirDash"] = RumbleEvents["HeroDash"];
         RumbleEvents["StartShuttlecock"] = CreateUI("SprintJump", 0.8f, true);
         RumbleEvents["PlaySoftLand"] = CreateUI("Landing", 0.5f, true);
         RumbleEvents["DoHardLandingEffectNoHit"] = CreateUI("HardLanding", 3, true);
-        RumbleEvents["Camera Shake"] = CreateUI("CameraShake", 0.5f, true);
+        RumbleEvents["StartWallSlide"] = CreateUI("WallSlide", 0.3f, true);
+
+        // Movement - advanced
+        RumbleEvents["PlayDoubleJump"] = CreateUI("DoubleJump", 0.5f, true);
+        RumbleEvents["PlayShadowDash"] = CreateUI("ShadowDash", 0.8f, true);
+
+        // Movement - swimming
+        RumbleEvents["PlaySwimEnter"] = CreateUI("SwimEnter", 0.5f, true, gapBelow: false);
+        RumbleEvents["PlaySwimExit"] = CreateUI("SwimExit", 0.4f, true, gapBelow: false);
+        RumbleEvents["UpdateSwimSpeed"] = CreateUI("Swimming", 0.2f, true);
+
+        // Combat
+        RumbleEvents["StartSlash"] = CreateUI("DownSlash", 0.3f, true, gapBelow: false);
+        RumbleEvents["OnSlashStarting"] = CreateUI("AnySlash", 0.2f, true, gapBelow: false);
+        RumbleEvents["Hit"] = CreateUI("EnemyHit", 0.4f, true, gapBelow: false);
+        RumbleEvents["Burst"] = CreateUI("Burst", 0.6f, true);
+
+        // Tools and consumables
+        RumbleEvents["PlayToolThrow"] = CreateUI("UseTool", 1f, true, gapBelow: false);
+        RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 1f, true, gapBelow: false);
+        RumbleEvents["UpdateConsumeRumble"] = CreateUI("Consuming", 0.3f, true);
+
+        // Death
+        RumbleEvents["PlayHeroDeath"] = CreateUI("HeroDeath", 3f, true, gapBelow: false);
+        RumbleEvents["PlayHeroHazardDeath"] = CreateUI("HazardDeath", 2f, true);
+
+        // Progression and unlocks
+        RumbleEvents["UpdateUnlockRumble"] = CreateUI("Unlocking", 0.5f, true, gapBelow: false);
+        RumbleEvents["PlayFinalShake"] = CreateUI("UnlockShake", 1f, true);
+
+        // Map and pickups
+        RumbleEvents["PlaceMarker"] = CreateUI("PlaceMapMarker", 0.3f, true, gapBelow: false);
+        RumbleEvents["RemoveMarker"] = CreateUI("RemoveMapMarker", 0.2f, true, gapBelow: false);
+        RumbleEvents["DoCollect"] = CreateUI("Collect", 0.5f, true);
+
+        // Environment
+        RumbleEvents["Camera Shake"] = CreateUI("CameraShake", 0.5f, true, gapBelow: false);
+        RumbleEvents["DoBobInternal"] = CreateUI("EnvironmentBob", 0.3f, true);
+
+        // Menus
         RumbleEvents["PlaySubmitSound"] = CreateUI("MenuSubmitSound", 0.5f, false);
         RumbleEvents["PressCancel"] = RumbleEvents["PlaySubmitSound"];
         RumbleEvents["PressSubmit"] = RumbleEvents["PlaySubmitSound"];
-        RumbleEvents["PlayToolThrow"] = CreateUI("UseTool", 1f, true);
-        RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 1f, true);
-        RumbleEvents["StartSlash"] = CreateUI("DownSlash", 0.3f, true, gapBelow: false);
-        RumbleEvents["OnSlashStarting"] = CreateUI("AnySlash", 0.2f, true);
-        RumbleEvents["StartWallSlide"] = CreateUI("WallSlide", 0.3f, true);
 
         WeightedEvent CreateUI(string identifier, float defaultWeight, bool defaultOn, bool gapBelow = true, string? categoryLabel = null)
         {
@@ -74,9 +111,15 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         "PlaySound",
         "PlayVibration",
         "PlayVibrationClipOneShot",
+        "PlayRandomVibration",
+        "PlayDelayedVibrationRoutine",
         "SpawnAndPlayOneShot",
         "SpawnAndPlayOneShotInternal",
         "StartVibration",
+        "StartEmission",
+        "StartSyncedEmission",
+        "StartRumble",
+        "GetDuration",
         "OnEnter",
         "OnEnable",
         "DoShake",
