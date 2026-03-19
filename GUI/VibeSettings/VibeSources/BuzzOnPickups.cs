@@ -11,6 +11,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     public bool ScaleWithWeighting { get => _scaleWithWeighting.value; set => _scaleWithWeighting.value = value; }
 
     private readonly Dictionary<string, WeightedEvent> KnownItems = new();
+    private readonly Dictionary<string, object> _lastValues = new();
     protected override string _punctuateReminderDescription => "collecting an item";
 
     public BuzzOnPickups() : base("Pickups", false, 50, 5, true)
@@ -23,6 +24,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         ModHooks.OnHeartPieceCollectedHook += OnHeartPieceCollected;
         ModHooks.OnSpoolFragmentCollectedHook += OnSpoolFragmentCollected;
         ModHooks.OnToolUnlockHook += ToolUnlock;
+        ModHooks.OnPlayerDataSetVariableHook += OnPlayerDataSetVariable;
 
         _scaleWithWeighting = Get<Toggle>("PickupsScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
@@ -216,17 +218,24 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     }
     private void OnSetInt(string intName, int value)
     {
-        Log($"[DIAG] SetInt: {intName} = {value}{(KnownItems.ContainsKey(intName) ? " *** MATCH ***" : "")}");
+        if (!KnownItems.ContainsKey(intName)) return;
+        if (_lastValues.TryGetValue(intName, out var prev) && prev is int prevInt && value <= prevInt) return;
+        _lastValues[intName] = value;
+        Log($"SET INT CHANGED: {intName} = {value}");
         TryActivate(intName);
     }
     private void OnSetBool(string boolName, bool value)
     {
-        if (value) Log($"[DIAG] SetBool: {boolName} = true{(KnownItems.ContainsKey(boolName) ? " *** MATCH ***" : "")}");
-        if (value) TryActivate(boolName);
+        if (!value || !KnownItems.ContainsKey(boolName)) return;
+        if (_lastValues.TryGetValue(boolName, out var prev) && prev is bool prevBool && prevBool) return;
+        _lastValues[boolName] = value;
+        Log($"SET BOOL CHANGED: {boolName} = true");
+        TryActivate(boolName);
     }
     private void ItemPickup(SavedItem item)
     {
         Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
+        if (item is ToolItem) return; // Handled by OnToolUnlockHook
         TryActivate(item.name);
     }
     private void ToolUnlock(ToolItem tool)
@@ -249,4 +258,17 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     private void OnMaxSilkUp() => TryActivate("fullSpool");
     private void OnHeartPieceCollected() => TryActivate("heartPieces");
     private void OnSpoolFragmentCollected() => TryActivate("silkSpoolParts");
+    private void OnPlayerDataSetVariable(string fieldName, object value)
+    {
+        if (!KnownItems.ContainsKey(fieldName)) return;
+        // Diff against snapshot — only trigger on actual change
+        if (_lastValues.TryGetValue(fieldName, out var prev))
+        {
+            if (value is bool curBool && prev is bool prevBool && curBool == prevBool) return;
+            if (value is int curInt && prev is int prevInt && curInt <= prevInt) return;
+        }
+        _lastValues[fieldName] = value;
+        Log($"PD SETVAR CHANGED: {fieldName} = {value}");
+        TryActivate(fieldName);
+    }
 }

@@ -262,4 +262,16 @@ internal static class ModHooks
             OnItemPickupHook?.Invoke(__instance);
         }
     }
+
+    // Catches ALL PlayerData field writes via SetVariable (used by PlayerDataAccess properties)
+    // This is the universal hook for maps, abilities, tool pouch, silk heart, etc.
+    public static event Action<string, object>? OnPlayerDataSetVariableHook;
+    [HarmonyPatch(typeof(GenericVariableExtension.VariableExtensionsGeneric), nameof(GenericVariableExtension.VariableExtensionsGeneric.SetVariable),
+        new[] { typeof(object), typeof(string), typeof(object), typeof(Type) })]
+    [HarmonyPostfix]
+    private static void OnSetVariable(object obj, string fieldName, object value)
+    {
+        if (obj is PlayerData)
+            OnPlayerDataSetVariableHook?.Invoke(fieldName, value);
+    }
 }
