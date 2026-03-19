@@ -37,13 +37,20 @@ public class DeviceInfo
 
     private void PopulateFeatures()
     {
+        // Collect device-reported features
+        var reported = new Dictionary<FeatureType, uint>();
         foreach (var rawFeature in Device.Features)
         {
             FeatureType type = ActuatorTypeToFeatureType(rawFeature.ActuatorType);
-            uint stepCount = (uint)(rawFeature.StepCount ?? 0);
+            if (!reported.ContainsKey(type))
+                reported[type] = (uint)(rawFeature.StepCount ?? 0);
+        }
 
-            if (!Features.ContainsKey(type))
-                Features[type] = new DeviceFeature(this, type, true, stepCount);
+        // Create entries for ALL feature types, marking unsupported ones
+        foreach (FeatureType type in Enum.GetValues(typeof(FeatureType)))
+        {
+            bool supported = reported.TryGetValue(type, out uint stepCount);
+            Features[type] = new DeviceFeature(this, type, supported, supported ? stepCount : null);
         }
     }
 

@@ -1,6 +1,5 @@
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
@@ -50,25 +49,6 @@ internal class DeviceUI : GUISection
         {
             _features.Add(feature.Key, GetFeatureUI(feature.Key, feature.Value));
         }
-        // Hide UXML toggles and extra controls for feature types this device doesn't have
-        foreach (FeatureType ft in Enum.GetValues(typeof(FeatureType)))
-        {
-            if (!DeviceInfo.Features.ContainsKey(ft))
-            {
-                var toggle = root.Q<Toggle>($"{ft}Feature");
-                toggle?.AddToClassList("hide");
-
-                var stepCount = root.Q<Label>($"{ft}StepCount");
-                stepCount?.AddToClassList("hide");
-            }
-        }
-        // Hide extra controls for unsupported feature types
-        if (!DeviceInfo.Features.ContainsKey(FeatureType.Rotate))
-            root.Q<DropdownField>("RotateFeatureDirection")?.AddToClassList("hide");
-        if (!DeviceInfo.Features.ContainsKey(FeatureType.Temperature))
-            root.Q<FloatField>("TemperatureFeatureNeutral")?.AddToClassList("hide");
-        if (!DeviceInfo.Features.ContainsKey(FeatureType.Position))
-            root.Q<FloatField>("PositionFeatureDuration")?.AddToClassList("hide");
 
         _testButton = root.Q<Button>("TestDeviceButton");
         _testButton.clicked += TestButtonClicked;
