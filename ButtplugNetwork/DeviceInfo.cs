@@ -105,8 +105,6 @@ public class DeviceInfo
             if (!Features.TryGetValue(featureType, out DeviceFeature feature)) continue;
             if (!feature.IsSupported || !feature.IsEnabled) continue;
 
-            string actuatorType = FeatureTypeToActuatorType(feature.Type);
-
             switch (feature.Type)
             {
                 case FeatureType.Vibrate:
@@ -122,20 +120,6 @@ public class DeviceInfo
                     break;
             }
         }
-    }
-
-    private static string FeatureTypeToActuatorType(FeatureType type)
-    {
-        return type switch
-        {
-            FeatureType.Vibrate => "Vibrate",
-            FeatureType.Rotate => "Rotate",
-            FeatureType.Oscillate => "Oscillate",
-            FeatureType.Constrict => "Constrict",
-            FeatureType.Spray => "Spray",
-            FeatureType.Position => "Position",
-            _ => "Vibrate",
-        };
     }
 
     public void Unload()
