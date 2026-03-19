@@ -187,6 +187,23 @@ internal static class ModHooks
         OnMaxSilkUpHook?.Invoke();
     }
 
+    // Individual shard/fragment collection (heartPieces/silkSpoolParts are plain fields, bypass SetInt)
+    public static event Action? OnHeartPieceCollectedHook;
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckHeartAchievements))]
+    [HarmonyPostfix]
+    private static void OnHeartPieceCollected()
+    {
+        OnHeartPieceCollectedHook?.Invoke();
+    }
+
+    public static event Action? OnSpoolFragmentCollectedHook;
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckSilkSpoolAchievements))]
+    [HarmonyPostfix]
+    private static void OnSpoolFragmentCollected()
+    {
+        OnSpoolFragmentCollectedHook?.Invoke();
+    }
+
     public static event Action<ToolItem>? OnToolUnlockHook;
     [HarmonyPatch(typeof(ToolItem), nameof(ToolItem.Unlock))]
     [HarmonyPostfix]
