@@ -269,6 +269,11 @@ public class ButtplugRawClient
                 case "SensorReading":
                     ResolvePending(msgId, body);
                     break;
+
+                case "ScanningFinished":
+                    // Auto-restart scanning so disconnected devices can reconnect
+                    StartScanning();
+                    break;
             }
         }
     }

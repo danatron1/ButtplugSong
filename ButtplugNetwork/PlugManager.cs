@@ -127,7 +127,7 @@ public class PlugManager
         try
         {
             Log("Connecting to the server...");
-            await Client.ConnectAsync(_connector);
+            await Client.ConnectAsync(ServerAddress, Port);
             if (Status != PlugManagerStatus.DeviceConnected) Status = PlugManagerStatus.ConnectedToServer;
             Log("Connected to server.");
             _tryingToReconnect = false;
