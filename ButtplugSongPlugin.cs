@@ -24,6 +24,7 @@ namespace ButtplugSong
             vibe = new VibeManager(ModPath, Logger.LogInfo);
 
             harmony.PatchAll();
+            ModHooks.ApplySetVariablePatch(harmony);
 
             Logger.LogInfo($"Plugin {Name} ({Id}) has loaded!");
         }

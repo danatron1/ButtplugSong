@@ -90,6 +90,7 @@ internal static class ModHooks
     [HarmonyPostfix]
     private static void OnSetBool(string boolName, bool value)
     {
+        if (value) _setVarLog.LogInfo($"[DIAG] PD.SetBool: {boolName} = {value}");
         OnSetBoolHook?.Invoke(boolName, value);
     }
 
@@ -98,8 +99,13 @@ internal static class ModHooks
     [HarmonyPostfix]
     private static void OnSetInt(string intName, int value)
     {
+        _setVarLog.LogInfo($"[DIAG] PD.SetInt: {intName} = {value}");
         OnSetIntHook?.Invoke(intName, value);
     }
+
+    // Called by PlayerDataPoller to fire the same events for fields written directly (bypass SetBool/SetInt)
+    internal static void RaiseSetBool(string name, bool value) => OnSetBoolHook?.Invoke(name, value);
+    internal static void RaiseSetInt(string name, int value) => OnSetIntHook?.Invoke(name, value);
 
     //Controller rumble
     public static event Action<string?>? OnRumbleHook;
@@ -221,15 +227,26 @@ internal static class ModHooks
         {
             var log = BepInEx.Logging.Logger.CreateLogSource("ButtplugSong.Hooks");
             var methods = new List<MethodBase>();
+            var targetMethodNames = new[] { "Get", "Collect" };
 
-            var baseGet = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(int), typeof(bool) });
-            if (baseGet != null && !baseGet.IsAbstract)
-                methods.Add(baseGet);
+            // Patch base SavedItem methods
+            foreach (var methodName in targetMethodNames)
+            {
+                var baseMethod2 = typeof(SavedItem).GetMethod(methodName, new[] { typeof(int), typeof(bool) });
+                if (baseMethod2 != null && !baseMethod2.IsAbstract)
+                    methods.Add(baseMethod2);
 
-            var baseGetSimple = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(bool) });
-            if (baseGetSimple != null && !baseGetSimple.IsAbstract)
-                methods.Add(baseGetSimple);
+                var baseMethod1 = typeof(SavedItem).GetMethod(methodName, new[] { typeof(bool) });
+                if (baseMethod1 != null && !baseMethod1.IsAbstract)
+                    methods.Add(baseMethod1);
 
+                // No-arg overload
+                var baseMethod0 = typeof(SavedItem).GetMethod(methodName, Type.EmptyTypes);
+                if (baseMethod0 != null && !baseMethod0.IsAbstract)
+                    methods.Add(baseMethod0);
+            }
+
+            // Scan all SavedItem subtypes for declared Get/Collect overrides
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 Type[] types;
@@ -244,11 +261,14 @@ internal static class ModHooks
 
                     foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
                     {
-                        if (method.Name == nameof(SavedItem.Get) && !method.IsAbstract)
+                        if (targetMethodNames.Contains(method.Name) && !method.IsAbstract)
                             methods.Add(method);
                     }
                 }
             }
+
+            // Deduplicate (same method from base class could be added twice)
+            methods = methods.Distinct().ToList();
 
             foreach (var m in methods)
                 log.LogInfo($"SavedItemGetPatch target: {m.DeclaringType.Name}.{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.ParameterType.Name))})");
@@ -266,12 +286,59 @@ internal static class ModHooks
     // Catches ALL PlayerData field writes via SetVariable (used by PlayerDataAccess properties)
     // This is the universal hook for maps, abilities, tool pouch, silk heart, etc.
     public static event Action<string, object>? OnPlayerDataSetVariableHook;
-    [HarmonyPatch(typeof(GenericVariableExtension.VariableExtensionsGeneric), nameof(GenericVariableExtension.VariableExtensionsGeneric.SetVariable),
-        new[] { typeof(object), typeof(string), typeof(object), typeof(Type) })]
-    [HarmonyPostfix]
-    private static void OnSetVariable(object obj, string fieldName, object value)
+
+    // Manual patch - attribute-based fails because the decompiled class name
+    // (GenericVariableExtension.VariableExtensionsGeneric) differs from the runtime class
+    // (TeamCherry.SharedUtils.VariableExtensions) which lives in a separate DLL.
+    internal static void ApplySetVariablePatch(Harmony harmony)
     {
-        if (obj is PlayerData)
-            OnPlayerDataSetVariableHook?.Invoke(fieldName, value);
+        var log = BepInEx.Logging.Logger.CreateLogSource("ButtplugSong.SetVarPatch");
+        MethodInfo? target = null;
+
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            Type[] types;
+            try { types = assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException ex) { types = ex.Types.Where(t => t != null).ToArray()!; }
+            catch { continue; }
+
+            foreach (var type in types)
+            {
+                var method = type.GetMethod("SetVariable",
+                    BindingFlags.Static | BindingFlags.Public,
+                    null,
+                    new[] { typeof(object), typeof(string), typeof(object), typeof(Type) },
+                    null);
+                if (method != null)
+                {
+                    target = method;
+                    log.LogInfo($"Found SetVariable: {type.FullName}::{method.Name} in {assembly.GetName().Name}");
+                    break;
+                }
+            }
+            if (target != null) break;
+        }
+
+        if (target == null)
+        {
+            log.LogWarning("Could not find SetVariable(object, string, object, Type) in any loaded assembly!");
+            return;
+        }
+
+        var postfix = typeof(ModHooks).GetMethod(nameof(OnSetVariablePostfix), BindingFlags.Static | BindingFlags.NonPublic);
+        harmony.Patch(target, postfix: new HarmonyMethod(postfix));
+        log.LogInfo("SetVariable patch applied successfully.");
+    }
+
+    private static readonly BepInEx.Logging.ManualLogSource _setVarLog = 
+        BepInEx.Logging.Logger.CreateLogSource("ButtplugSong.SetVar");
+
+    private static void OnSetVariablePostfix(object __0, string __1, object __2)
+    {
+        if (__0 is PlayerData)
+        {
+            _setVarLog.LogInfo($"PD.SetVariable: {__1} = {__2}");
+            OnPlayerDataSetVariableHook?.Invoke(__1, __2);
+        }
     }
 }

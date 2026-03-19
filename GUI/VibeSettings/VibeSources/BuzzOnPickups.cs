@@ -12,6 +12,8 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
 
     private readonly Dictionary<string, WeightedEvent> KnownItems = new();
     private readonly Dictionary<string, object> _lastValues = new();
+    private string _lastPickupName = "";
+    private float _lastPickupTime;
     protected override string _punctuateReminderDescription => "collecting an item";
 
     public BuzzOnPickups() : base("Pickups", false, 50, 5, true)
@@ -25,6 +27,50 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         ModHooks.OnSpoolFragmentCollectedHook += OnSpoolFragmentCollected;
         ModHooks.OnToolUnlockHook += ToolUnlock;
         ModHooks.OnPlayerDataSetVariableHook += OnPlayerDataSetVariable;
+
+        // Start poller for PD fields that bypass SetBool/SetInt (shop purchases, direct writes)
+        var poller = PlayerDataPoller.EnsureExists();
+        // Bool PD fields to poll
+        foreach (var f in new[] {
+            // Maps
+            "HasBellhartMap", "HasSwampMap", "HasJudgeStepsMap", "HasHallsMap", "HasCogMap",
+            "HasCradleMap", "HasDocksMap", "HasWildsMap", "HasSongGateMap", "HasGreymoorMap",
+            "HasHangMap", "HasHuntersNestMap", "HasArboriumMap", "HasMossGrottoMap", "HasPeakMap",
+            "HasAqueductMap", "HasCoralMap", "HasShellwoodMap", "HasDustpensMap", "HasAbyssMap",
+            "HasBoneforestMap", "HasSlabMap", "HasCitadelUnderstoreMap", "HasCloverMap",
+            "HasWeavehomeMap", "HasLibraryMap", "HasWardMap", "HasCrawlMap",
+            // Markers & pins
+            "hasMarker_a", "hasMarker_b", "hasMarker_c", "hasMarker_d", "hasMarker_e",
+            "hasPinBench", "hasPinStag", "hasPinShop", "hasPinTube",
+            "hasPinFleaMarrowlands", "hasPinFleaMidlands", "hasPinFleaBlastedlands",
+            "hasPinFleaCitadel", "hasPinFleaPeaklands", "hasPinFleaMucklands",
+            // Silk skill PD bools
+            "hasParry", "hasSilkBossNeedle", "hasSilkBomb", "hasSilkCharge",
+            "hasNeedleThrow", "hasThreadSphere",
+            // Abilities
+            "hasDash", "hasWalljump", "hasHarpoonDash", "hasSuperJump", "hasChargeSlash",
+            "hasBrolly", "hasDoubleJump", "hasNeedolin", "hasNeedolinMemoryPowerup",
+            "UnlockedFastTravelTeleport", "HasMelodyArchitect", "HasMelodyConductor",
+            "HasMelodyLibrarian", "HasBoundCrestUpgrader",
+            // Vesticrest
+            "UnlockedExtraBlueSlot", "UnlockedExtraYellowSlot",
+            // Bellway stations
+            "UnlockedDocksStation", "UnlockedBoneforestEastStation", "UnlockedGreymoorStation",
+            "UnlockedBelltownStation", "UnlockedCoralTowerStation", "UnlockedCityStation",
+            "UnlockedPeakStation", "UnlockedShellwoodStation", "UnlockedShadowStation",
+            "UnlockedAqueductStation",
+            // Ventrica stations
+            "UnlockedSongTube", "UnlockedUnderTube", "UnlockedCityBellwayTube",
+            "UnlockedHangTube", "UnlockedEnclaveTube", "UnlockedArboriumTube",
+            // Bellhome
+            "BelltownFurnishingDesk", "BelltownFurnishingFairyLights",
+            "BelltownFurnishingGramaphone", "BelltownFurnishingSpa"
+        }) poller.TrackBool(f);
+        // Int PD fields to poll
+        foreach (var f in new[] { "heartPieces", "silkSpoolParts", "silkRegenMax", "QuillState", "ToolPouchUpgrades", "ToolKitUpgrades" })
+            poller.TrackInt(f);
+        // CollectableItemManager-based items (Amount tracking, not PlayerData)
+        poller.TrackCollectable("Mossberry");
 
         _scaleWithWeighting = Get<Toggle>("PickupsScaleWithWeighting");
         _scaleWithWeighting.SetupSaving(true).DependsOn(_enabled);
@@ -77,7 +123,8 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "Courier Supplies Slave", "Song Pilgrim Cloak", "Fine Pin", "Pilgrim Rag",
             "Plasmium Blood", "Plasmium", "Crow Feather", "Roach Corpse Item",
             "Enemy Morsel Seared", "Enemy Morsel Shredded", "Silver Bellclapper",
-            "Enemy Morsel Speared", "Common Spine", "Flintgem");
+            "Enemy Morsel Speared", "Common Spine", "Flintgem",
+            "Conchfly Remains", "Blue Goop Jar", "Coral Chunk", "Shining Cog");
 
         MapCategory(CreateUI("Mementos", 1, true, true),
             "Crowman Memento", "Grey Memento", "Memento Seth",
@@ -106,6 +153,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
             "Magnetite Dice", "Scuttlebrace", "Bone Necklace", "Shell Satchel",
             "Sprintmaster", "Musician Charm", "Thief Charm", "Weighted Anklet");
 
+        //Need to be fixed
         KnownItems["ToolPouchUpgrades"] = CreateUI("ToolPouch", 0.5f, true);
         KnownItems["Tool Pouch&Kit Inv"] = KnownItems["ToolPouchUpgrades"];
         KnownItems["ToolKitUpgrades"] = CreateUI("CraftingKit", 0.5f, true, true);
@@ -116,7 +164,7 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         KnownItems["fullHeart"] = CreateUI("FullMask", 1f, true);
         KnownItems["silkSpoolParts"] = CreateUI("SpoolFragment", 0.4f, true);
         KnownItems["fullSpool"] = CreateUI("FullSpool", 0.6f, true, true);
-
+        // end of to be fixed
         #endregion
 
         #region Navigation / World
@@ -160,8 +208,12 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
 
         #region Abilities
 
-        MapCategory(CreateUI("SilkSkills", 1, true, categoryLabel: "Abilities"),
-            "Parry", "Silk Boss Needle", "Silk Bomb", "Silk Charge", "Silk Spear", "Thread Sphere");
+        var silkSkillsUI = CreateUI("SilkSkills", 1, true, categoryLabel: "Abilities");
+        MapCategory(silkSkillsUI,
+            "Parry", "Silk Boss Needle", "Silk Bomb", "Silk Charge", "Silk Spear", "Thread Sphere",
+            // PD bools for silk skills (polled):
+            "hasParry", "hasSilkBossNeedle", "hasSilkBomb", "hasSilkCharge",
+            "hasNeedleThrow", "hasThreadSphere");
 
         KnownItems["hasDash"] = CreateUI("SwiftStep", 0.6f, true);
         KnownItems["hasWalljump"] = CreateUI("ClingGrip", 1.2f, true);
@@ -236,7 +288,15 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     {
         Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
         if (item is ToolItem) return; // Handled by OnToolUnlockHook
+        // Dedup: Get() and Collect() both fire for same pickup
+        float now = UnityEngine.Time.unscaledTime;
+        if (item.name == _lastPickupName && now - _lastPickupTime < 0.5f) return;
+        _lastPickupName = item.name;
+        _lastPickupTime = now;
+        // item.name uses underscores (Unity asset name), KnownItems uses spaces
         TryActivate(item.name);
+        var spaceName = item.name.Replace("_", " ");
+        if (spaceName != item.name) TryActivate(spaceName);
     }
     private void ToolUnlock(ToolItem tool)
     {
