@@ -20,6 +20,8 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         ModHooks.OnSetIntHook += OnSetInt;
         ModHooks.OnMaxHealthUpHook += OnMaxHealthUp;
         ModHooks.OnMaxSilkUpHook += OnMaxSilkUp;
+        ModHooks.OnHeartPieceCollectedHook += OnHeartPieceCollected;
+        ModHooks.OnSpoolFragmentCollectedHook += OnSpoolFragmentCollected;
         ModHooks.OnToolUnlockHook += ToolUnlock;
 
         _scaleWithWeighting = Get<Toggle>("PickupsScaleWithWeighting");
@@ -243,6 +245,8 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         if (!ScaleWithWeighting) Activate(weightedEvent.EnabledText);
         else Activate(weightedEvent.Weight, weightedEvent.EnabledText);
     }
-    private void OnMaxHealthUp(int amount) => TryActivate("fullHeart");
-    private void OnMaxSilkUp(int amount) => TryActivate("fullSpool");
+    private void OnMaxHealthUp() => TryActivate("fullHeart");
+    private void OnMaxSilkUp() => TryActivate("fullSpool");
+    private void OnHeartPieceCollected() => TryActivate("heartPieces");
+    private void OnSpoolFragmentCollected() => TryActivate("silkSpoolParts");
 }
