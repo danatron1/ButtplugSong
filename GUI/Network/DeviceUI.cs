@@ -1,5 +1,6 @@
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
@@ -48,6 +49,15 @@ internal class DeviceUI : GUISection
         foreach (var feature in DeviceInfo.Features)
         {
             _features.Add(feature.Key, GetFeatureUI(feature.Key, feature.Value));
+        }
+        // Hide UXML toggles for feature types this device doesn't have
+        foreach (FeatureType ft in Enum.GetValues(typeof(FeatureType)))
+        {
+            if (!DeviceInfo.Features.ContainsKey(ft))
+            {
+                var toggle = root.Q<Toggle>($"{ft}Feature");
+                toggle?.AddToClassList("hide");
+            }
         }
 
         _testButton = root.Q<Button>("TestDeviceButton");
