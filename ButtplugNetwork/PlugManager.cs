@@ -221,7 +221,7 @@ public class PlugManager
         _tryingToReconnect = true; 
         SetupClient();
 
-        while (tryConnectAttempts <= RetryAttempts)
+        while (tryConnectAttempts < RetryAttempts)
         {
             Log($"Reconnecting after disconnect...");
 
