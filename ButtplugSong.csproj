@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <!-- 
   Imports silksong path properties only if present in order to allow CI builds. The file should be gitignored.
   If you are checking out from git and need to create a new one, you can use `dotnet new silksongpath` to generate one.
@@ -40,14 +40,8 @@
     <None Include="thunderstore/icon.png" Pack="True" PackagePath="icon.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="ButtplugManaged">
-      <HintPath>bin\Debug\netstandard2.1\ButtplugManaged.dll</HintPath>
-    </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>bin\Debug\netstandard2.1\websocket-sharp.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
+
 
   <Target Name="CopyAndPackageMod" AfterTargets="PostBuildEvent">
     <ItemGroup>
