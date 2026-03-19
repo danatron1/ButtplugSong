@@ -40,7 +40,6 @@ internal class DeviceUI : GUISection
         fullName.SetClassListIf("hide", x => DeviceInfo.Name.Length <= 20);
 
         _batteryLabel = root.Q<Label>("BatteryPercentage");
-        Task.Run(UpdateBatteryDisplay);
 
         Label idLabel = root.Q<Label>("IDLabel");
         idLabel.text = $"ID: {DeviceInfo.Id}";
