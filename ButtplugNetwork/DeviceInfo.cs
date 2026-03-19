@@ -15,6 +15,7 @@ public class DeviceInfo
     public double? Battery { get; private set; }
     public bool IsEnabled { get; set; } = true;
 
+    //specific feature settings;
     public bool AlternateRotation { get; internal set; } = true;
     public bool RotateClockwise { get; set; } = true;
     public float NeutralTemperature { get; set; } = 0f;
@@ -118,6 +119,7 @@ public class DeviceInfo
                     uint durationMs = (uint)(MoveDuration * 1000f);
                     Device.SendLinearCmd(durationMs, power);
                     break;
+                    //other features not implemented yet - see DeviceFeature.Implemented
             }
         }
     }
