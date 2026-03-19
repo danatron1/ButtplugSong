@@ -33,10 +33,6 @@ target = "/"
 source = "/../AssetBundles"
 target = "/"
 
-[[build.copy]]
-source = "/../Buttplug"
-target = "/"
-
 
 [publish]
 repository = "https://thunderstore.io"
