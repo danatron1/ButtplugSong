@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ButtplugSong.Network;
@@ -26,10 +26,15 @@ public class DeviceFeature
     };
 
     public FeatureType Type { get; }
-    public bool IsSupported { get; }
+    public bool IsSupported { get; internal set; }
     public uint? StepCount { get; }
-    public DeviceInfo DeviceInfo { get; }
+    public DeviceInfo DeviceInfo { get; internal set; }
     public bool IsEnabled { get; set; }
+
+    // Raw protocol fields (consolidated from ButtplugDevice.Feature)
+    public string CommandType { get; }
+    public string ActuatorType { get; }
+    public int ActuatorIndex { get; }
 
     public DeviceFeature(DeviceInfo device, FeatureType type, bool isSupported, uint? stepCount)
     {
@@ -38,6 +43,17 @@ public class DeviceFeature
         IsSupported = isSupported;
         StepCount = stepCount;
         IsEnabled = isSupported;
+    }
+
+    /// <summary>Protocol-level constructor used during device parsing.</summary>
+    public DeviceFeature(string commandType, string actuatorType, int actuatorIndex, int stepCount)
+    {
+        CommandType = commandType;
+        ActuatorType = actuatorType;
+        ActuatorIndex = actuatorIndex;
+        StepCount = (uint)stepCount;
+        IsSupported = true;
+        IsEnabled = false;
     }
 
     internal static readonly string[] AllCommandKeys =
