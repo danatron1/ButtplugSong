@@ -11,16 +11,6 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
 {
     public const string UncategorisedRumbleEventName = "UncategorisedRumble";
 
-    /*New vibe source checklist:
-     * Add relevant modhooks in constructor, implement as you see fit, e.g:
-     *      ModHooks.TakeHealthHook += PlayerHit
-     * for each UI element reference, populate it by querying the UI, e.g:
-     *      _scaleWithDamage = Get<Toggle>("ScaleWithDamage");
-     * set dependencies to other UI elements like this;
-     *      _vulnerableVibingThreshold.SetupValueClamping(0, 100).DependsOn(_vulnerableVibing);
-     * OVERRIDES:
-     * Override _punctuateReminderDescription. Should follow the form of "The first second after ___ is at max power"
-     */
     private readonly Toggle _scaleWithWeighting;
     public bool ScaleWithWeighting { get => _scaleWithWeighting.value; set => _scaleWithWeighting.value = value; }
     protected override string _punctuateReminderDescription => "a rumble";
@@ -76,7 +66,7 @@ internal class BuzzOnRumble : VibeSourceWithPunctuate
         RumbleEvents["PressSubmit"] = RumbleEvents["PlaySubmitSound"];
 
         RumbleEvents["PlayConsumeFinalShake"] = CreateUI("UseConsumable", 1f, true);
-        RumbleEvents["PlayFinalShake"] = CreateUI("UseMemoryLocket", 1f, true, gapBelow: true);
+        RumbleEvents["PlayFinalShake"] = CreateUI("UseMemoryLocket", 2f, true, gapBelow: true);
 
         RumbleEvents["PlaceMarker"] = CreateUI("UseMapMarker", 0.5f, false);
         RumbleEvents["RemoveMarker"] = RumbleEvents["PlaceMarker"];
