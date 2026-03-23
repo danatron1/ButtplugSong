@@ -214,12 +214,12 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     }
     private void OnSetInt(string intName, int value)
     {
-        if (KnownItems.ContainsKey(intName)) Log($"SET INT MATCH: {intName} = {value}");
+        Log($"[DIAG] SetInt: {intName} = {value}{(KnownItems.ContainsKey(intName) ? " *** MATCH ***" : "")}");
         TryActivate(intName);
     }
     private void OnSetBool(string boolName, bool value)
     {
-        if (value && KnownItems.ContainsKey(boolName)) Log($"SET BOOL MATCH: {boolName}");
+        if (value) Log($"[DIAG] SetBool: {boolName} = true{(KnownItems.ContainsKey(boolName) ? " *** MATCH ***" : "")}");
         if (value) TryActivate(boolName);
     }
     private void ItemPickup(SavedItem item)
@@ -243,6 +243,6 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
         if (!ScaleWithWeighting) Activate(weightedEvent.EnabledText);
         else Activate(weightedEvent.Weight, weightedEvent.EnabledText);
     }
-    private void OnMaxHealthUp(int amount) => TryActivate("fullHeart");
-    private void OnMaxSilkUp(int amount) => TryActivate("fullSpool");
+    private void OnMaxHealthUp() => TryActivate("fullHeart");
+    private void OnMaxSilkUp() => TryActivate("fullSpool");
 }

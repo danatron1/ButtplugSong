@@ -1,4 +1,3 @@
-﻿using ButtplugManaged;
 using ButtplugSong;
 using ButtplugSong.GUI;
 using ButtplugSong.GUI.Network;
@@ -73,7 +72,7 @@ public class VibeManager
         plug.SetPowerLevel(Logic.ActualPower, routineUpdate);
     }
 
-    internal IEnumerable<ButtplugClientDevice> GetDevices() => plug.GetDevices();
+    internal IEnumerable<ButtplugDevice> GetDevices() => plug.GetDevices();
     internal void ReconnectPlug()
     {
         DisconnectPlug();

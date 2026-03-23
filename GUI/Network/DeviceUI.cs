@@ -1,4 +1,3 @@
-﻿using ButtplugManaged;
 using ButtplugSong.Helper;
 using ButtplugSong.Network;
 using System.Collections.Generic;
@@ -20,40 +19,36 @@ internal class DeviceUI : GUISection
     private readonly Button _testButton;
 
     private readonly List<string> batteryColourStyles = ["red-text", "orange-text", "yellow-text", "grellow-text", "green-text"];
-    //REMOVING BATTERY DISPLAY FOR NOW; Proved too troublesome to implement
-    //TODO: Implement battery sensor and increase this number to 5
-    private int workingBatterySensor = 0;
+    private int workingBatterySensor = 5;
     private float timeSinceLastBatteryUpdate = 55;
 
-    public DeviceUI(ButtplugClientDevice device, NetworkSettings parent) : base("Device")
+    public DeviceUI(ButtplugDevice device, NetworkSettings parent) : base("Device")
     {
         DeviceInfo = new DeviceInfo(device, Log);
 
         _networkSettings = parent;
         root = Vibe.UI.Device.Instantiate();
 
-        //enabled checkbox
         _enabled = root.Q<Toggle>("DeviceEnabled");
         _enabled.text = DeviceInfo.Name;
         _enabled.value = true;
         _enabled.RegisterValueChangedCallback(EnabledToggleChanged);
-        //full name
+
         Label fullName = root.Q<Label>("FullNameLabel");
         fullName.text = $"Full name: {DeviceInfo.Name}";
         fullName.SetClassListIf("hide", x => DeviceInfo.Name.Length <= 20);
-        //battery
+
         _batteryLabel = root.Q<Label>("BatteryPercentage");
-        Task.Run(UpdateBatteryDisplay);
-        //id
+
         Label idLabel = root.Q<Label>("IDLabel");
         idLabel.text = $"ID: {DeviceInfo.Id}";
-        //features
+
         _features = new();
         foreach (var feature in DeviceInfo.Features)
         {
             _features.Add(feature.Key, GetFeatureUI(feature.Key, feature.Value));
         }
-        //test button
+
         _testButton = root.Q<Button>("TestDeviceButton");
         _testButton.clicked += TestButtonClicked;
 
@@ -81,7 +76,7 @@ internal class DeviceUI : GUISection
         _testButton.enabledSelf = evt.newValue;
         if (!evt.newValue)
         {
-            Task.Run(DeviceInfo.Device.SendStopDeviceCmd);
+            DeviceInfo.Device.SendStopCmd();
         }
     }
 
@@ -99,13 +94,7 @@ internal class DeviceUI : GUISection
     {
         if (workingBatterySensor <= 0) return;
         workingBatterySensor -= 1;
-        if (!DeviceInfo.Device.AllowedMessages.ContainsKey("BatteryLevelCmd"))
-        {
-            workingBatterySensor = 0;
-            _batteryLabel.text = "No Battery Sensor";
-            SetBatteryColour(0);
-        }
-        else if (await DeviceInfo.TryRefreshBattery() && DeviceInfo.Battery.HasValue)
+        if (await DeviceInfo.TryRefreshBattery() && DeviceInfo.Battery.HasValue)
         {
             workingBatterySensor = 10;
             _batteryLabel.text = $"Battery: {DeviceInfo.Battery:0}%";

@@ -171,20 +171,20 @@ internal static class ModHooks
         OnFinishedLoadingModsHook?.Invoke();
     }
     //Upgrade completion
-    public static event Action<int>? OnMaxHealthUpHook;
+    public static event Action? OnMaxHealthUpHook;
     [HarmonyPatch(typeof(PlayerData), nameof(PlayerData.AddToMaxHealth))]
     [HarmonyPostfix]
-    private static void OnMaxHealthUp(int amount)
+    private static void OnMaxHealthUp()
     {
-        OnMaxHealthUpHook?.Invoke(amount);
+        OnMaxHealthUpHook?.Invoke();
     }
 
-    public static event Action<int>? OnMaxSilkUpHook;
+    public static event Action? OnMaxSilkUpHook;
     [HarmonyPatch(typeof(HeroController), nameof(HeroController.AddToMaxSilk))]
     [HarmonyPostfix]
-    private static void OnMaxSilkUp(int amount)
+    private static void OnMaxSilkUp()
     {
-        OnMaxSilkUpHook?.Invoke(amount);
+        OnMaxSilkUpHook?.Invoke();
     }
 
     public static event Action<ToolItem>? OnToolUnlockHook;
