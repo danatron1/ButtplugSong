@@ -187,6 +187,23 @@ internal static class ModHooks
         OnMaxSilkUpHook?.Invoke();
     }
 
+    // Individual shard/fragment collection (heartPieces/silkSpoolParts are plain fields, bypass SetInt)
+    public static event Action? OnHeartPieceCollectedHook;
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckHeartAchievements))]
+    [HarmonyPostfix]
+    private static void OnHeartPieceCollected()
+    {
+        OnHeartPieceCollectedHook?.Invoke();
+    }
+
+    public static event Action? OnSpoolFragmentCollectedHook;
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckSilkSpoolAchievements))]
+    [HarmonyPostfix]
+    private static void OnSpoolFragmentCollected()
+    {
+        OnSpoolFragmentCollectedHook?.Invoke();
+    }
+
     public static event Action<ToolItem>? OnToolUnlockHook;
     [HarmonyPatch(typeof(ToolItem), nameof(ToolItem.Unlock))]
     [HarmonyPostfix]
@@ -202,11 +219,16 @@ internal static class ModHooks
 
         static IEnumerable<MethodBase> TargetMethods()
         {
+            var log = BepInEx.Logging.Logger.CreateLogSource("ButtplugSong.Hooks");
             var methods = new List<MethodBase>();
 
             var baseGet = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(int), typeof(bool) });
             if (baseGet != null && !baseGet.IsAbstract)
                 methods.Add(baseGet);
+
+            var baseGetSimple = typeof(SavedItem).GetMethod(nameof(SavedItem.Get), new[] { typeof(bool) });
+            if (baseGetSimple != null && !baseGetSimple.IsAbstract)
+                methods.Add(baseGetSimple);
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -227,6 +249,10 @@ internal static class ModHooks
                     }
                 }
             }
+
+            foreach (var m in methods)
+                log.LogInfo($"SavedItemGetPatch target: {m.DeclaringType.Name}.{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.ParameterType.Name))})");
+
             return methods;
         }
 
