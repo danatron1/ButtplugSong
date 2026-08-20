@@ -37,4 +37,6 @@ If you're still having issues (e.g. the mod is crashing), please contact me (dan
 
 `C:\Users\YourNameHere\AppData\Roaming\r2modmanPlus-local\HollowKnightSilksong\profiles\Default\BepInEx`
 
+Coded vibes, not vibe coded.
+
 What am I doing with my life.
