@@ -1,4 +1,3 @@
-using ButtplugSong.Helper;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -125,6 +124,9 @@ public class DeviceInfo
                 case FeatureType.Position:
                     uint durationMs = (uint)(MoveDuration * 1000f);
                     Device.SendLinearCmd(durationMs, power);
+                    break;
+                case FeatureType.Oscillate:
+                    Device.SendOscillateCmd(power);
                     break;
                     //other features not implemented yet - see DeviceFeature.Implemented
             }

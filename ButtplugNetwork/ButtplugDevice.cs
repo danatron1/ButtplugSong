@@ -33,7 +33,13 @@ public class ButtplugDevice
             .Select(f => (f.ActuatorIndex, f.ActuatorType));
         _client.SendScalarAll(Index, speed, actuators);
     }
-
+    public void SendOscillateCmd(double speed)
+    {
+        var actuators = Features
+            .Where(f => f.CommandType == "ScalarCmd" && f.ActuatorType == "Oscillate")
+            .Select(f => (f.ActuatorIndex, f.ActuatorType));
+        _client.SendScalarAll(Index, speed, actuators);
+    }
     public void SendRotateCmd(double speed, bool clockwise, int actuatorIndex = 0)
     {
         _client.SendRotate(Index, speed, clockwise, actuatorIndex);

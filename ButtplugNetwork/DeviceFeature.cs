@@ -22,7 +22,8 @@ public class DeviceFeature
     {
         FeatureType.Vibrate,
         FeatureType.Rotate,
-        FeatureType.Position
+        FeatureType.Position,
+        FeatureType.Oscillate
     };
 
     public FeatureType Type { get; }

@@ -42,7 +42,7 @@ public class PlugManager
     public int Port { get; private set; }
     public int RetryAttempts { get; private set; }
     private int tryConnectAttempts = 0;
-
+    private int clientResetAttempts = 0;
     internal float currentPower = 0;
     internal bool rotationEnabled = false;
     internal bool rotateClockwise = true;
@@ -68,14 +68,7 @@ public class PlugManager
 
         SetupClient();
 
-        var success = await TryConnect();
-        if (!success)
-        {
-            Log("Could not connect to the server.");
-            return false;
-        }
-
-        return true;
+        return await TryConnect();
     }
 
     internal void ShutDown()
@@ -234,12 +227,22 @@ public class PlugManager
         }
         if (!Client.Connected)
         {
+            if (clientResetAttempts > RetryAttempts) return; //silently exit early if given up - prevents console spam.
             Log("Intiface Client is disconnected - Is the server running?");
             if (!await TryConnect())
             {
-                Log("Failed to connect. Resetting client to reinitialize");
-                SetupClient();
-                if (await Initialize()) Log("Reinitialized!");
+                clientResetAttempts++;
+                if (clientResetAttempts > RetryAttempts)
+                {
+                    Log($"Failed to connect. {RetryAttempts} retry attempts exceeded; giving up. (Click Reconnect to try again)");
+                    return;
+                }
+                Log($"Failed to connect. Attempting client reset to reinitialize ({clientResetAttempts}/{RetryAttempts})");
+                if (await Initialize())
+                {
+                    Log("Reinitialized!");
+                    clientResetAttempts = 0;
+                }
                 else return;
             }
             else Log("Reconnected!");

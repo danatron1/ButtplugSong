@@ -214,22 +214,22 @@ internal class BuzzOnPickups : VibeSourceWithPunctuate
     }
     private void OnSetInt(string intName, int value)
     {
-        Log($"[DIAG] SetInt: {intName} = {value}{(KnownItems.ContainsKey(intName) ? " *** MATCH ***" : "")}");
+        //Log($"[DIAG] SetInt: {intName} = {value}{(KnownItems.ContainsKey(intName) ? " *** MATCH ***" : "")}");
         TryActivate(intName);
     }
     private void OnSetBool(string boolName, bool value)
     {
-        if (value) Log($"[DIAG] SetBool: {boolName} = true{(KnownItems.ContainsKey(boolName) ? " *** MATCH ***" : "")}");
+        //if (value) Log($"[DIAG] SetBool: {boolName} = true{(KnownItems.ContainsKey(boolName) ? " *** MATCH ***" : "")}");
         if (value) TryActivate(boolName);
     }
     private void ItemPickup(SavedItem item)
     {
-        Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
+        //Log($"GOT ITEM: {item.GetType().Name} - {item.name} (unique: {item.IsUnique})");
         TryActivate(item.name);
     }
     private void ToolUnlock(ToolItem tool)
     {
-        Log($"GOT TOOL: {tool.GetType().Name} - {tool.name}");
+        //Log($"GOT TOOL: {tool.GetType().Name} - {tool.name}");
         TryActivate(tool.name);
     }
     private void TryActivate(string name)

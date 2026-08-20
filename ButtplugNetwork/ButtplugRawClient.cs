@@ -362,7 +362,7 @@ public class ButtplugRawClient
             }
 
             bool hasBattery = HasBatteryCapability(msgs);
-            _log($"Device {name}: features={features.Count}, hasBattery={hasBattery}");
+            _log($"Device {name}: features={features.Count}, hasBattery={hasBattery}, features=[{string.Join(',', features.Select(x => x.ActuatorType.ToString()))}]");
             return new ButtplugDevice(name, index, features, hasBattery, this);
         }
         catch (Exception ex)

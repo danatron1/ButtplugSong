@@ -40,8 +40,6 @@ internal class GUIManager : MonoBehaviour
     public StyleSheet Style;
     public PanelSettings Settings;
 
-    private const float _displayUpdateFrequency = 1f / 16;
-    private float _timeSinceLastUpdate = 0.1f;
 
     public bool UIHidden { get; private set; } = false;
 
@@ -103,7 +101,7 @@ internal class GUIManager : MonoBehaviour
                     DefaultValue = 0,
                     LineBufferTop = 0.2f,
                     LineBufferBottom = 0.8f,
-                    RecordSteps = 128,
+                    WindowDuration = 5f,
                 };
                 VibeDisplay.SetSize(new Vector2(320, 35));
                 VibeDisplay.AddToClassList("wave-display");
@@ -294,12 +292,7 @@ internal class GUIManager : MonoBehaviour
 
         void UpdateWaveDisplay()
         {
-            _timeSinceLastUpdate += realTime;
-            while (_timeSinceLastUpdate >= _displayUpdateFrequency)
-            {
-                _timeSinceLastUpdate -= _displayUpdateFrequency;
-                VibeDisplay?.PushRecordStep(Vibe.Logic.ActualPower);
-            }
+            VibeDisplay?.PushRecordStep(Vibe.Logic.ActualPower);
         }
         void UpdatePowerDisplay()
         {
