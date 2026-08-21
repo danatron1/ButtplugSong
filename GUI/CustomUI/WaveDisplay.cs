@@ -10,7 +10,7 @@ namespace ButtplugSong.GUI.CustomUI;
 [Preserve]
 public partial class WaveDisplay : VisualElement
 {
-    private LinkedList<WavePoint> dataPoints = new();
+    private readonly LinkedList<WavePoint> dataPoints = new();
 
     [UxmlAttribute]
     public float WindowDuration = 5f;
@@ -78,10 +78,10 @@ public partial class WaveDisplay : VisualElement
         if (MinimumValue >= MaximumValue) throw new ArgumentException("Minimum value must be less than maximum value");
         generateVisualContent += GenerateVisualContent;
     }
-    public void PushRecordStep(float? record = null, bool repaint = true)
+    public void PushRecordStep(float? record = null)
     {
-        dataPoints.AddFirst(new WavePoint(record ?? DefaultValue, Time.time));
-        while (dataPoints.Count > 0 && (Time.time - dataPoints.Last.Value.Timestamp) > WindowDuration)
+        dataPoints.AddFirst(new WavePoint(record ?? DefaultValue, Time.unscaledTimeAsDouble));
+        while (dataPoints.Count > 0 && (Time.unscaledTimeAsDouble - dataPoints.Last.Value.Timestamp) > WindowDuration)
         {
             dataPoints.RemoveLast();
         }
@@ -92,8 +92,6 @@ public partial class WaveDisplay : VisualElement
         if (dataPoints.Count == 0) return;
 
         float height = contentRect.height - LineBufferBottom - LineBufferTop;
-        float width = contentRect.width;
-        float currentTime = Time.time;
 
         Painter2D painter = mesh.painter2D;
         painter.lineWidth = GlowWidth + LineWidth;
@@ -118,7 +116,7 @@ public partial class WaveDisplay : VisualElement
         painter.lineWidth = LineWidth;
         painter.Stroke();
 
-        float GetXPos(float timestamp) => width * ((currentTime - timestamp) / WindowDuration);
+        float GetXPos(double timestamp) => contentRect.width * (float)((Time.unscaledTimeAsDouble - timestamp) / WindowDuration);
 
         float RecordToHeight(float record)
         {
@@ -127,38 +125,9 @@ public partial class WaveDisplay : VisualElement
             return height * (1 - (record - MinimumValue) / (MaximumValue - MinimumValue)) + LineBufferTop;
         }
     }
-    /*
-    private void GenerateVisualContent(MeshGenerationContext mesh)
-    {
-        double height = (double)contentRect.height - LineBufferBottom - LineBufferTop;
-        double hStep = RecordSteps < 2 ? contentRect.width : (double)contentRect.width / (RecordSteps - 1);
-
-        Painter2D painter = mesh.painter2D;
-        painter.lineWidth = GlowWidth + LineWidth;
-        LinkedListNode<double> dataPoint = dataPoints.First;
-        painter.BeginPath();
-        painter.MoveTo(new Vector2(0, (float)RecordToHeight(dataPoint.Value)));
-        painter.strokeColor = GlowColor;
-        for (int i = 1; i < RecordSteps; i++)
-        {
-            if (dataPoint.Next != null) dataPoint = dataPoint.Next;
-            painter.LineTo(new Vector2((float)(hStep * i), (float)RecordToHeight(dataPoint.Value)));
-        }
-        painter.Stroke();
-        painter.strokeColor = LineColor;
-        painter.lineWidth = LineWidth;
-        painter.Stroke();
-
-        double RecordToHeight(double record)
-        {
-            if (record >= MaximumValue) return LineBufferTop;
-            if (record <= MinimumValue) return LineBufferTop + height;
-            return height * (1 - (record - MinimumValue) / (MaximumValue - MinimumValue)) + LineBufferTop;
-        }
-    }*/
 }
-public struct WavePoint(float value, float timestamp)
+public struct WavePoint(float value, double timestamp)
 {
     public float Value = value;
-    public float Timestamp = timestamp;
+    public double Timestamp = timestamp;
 }

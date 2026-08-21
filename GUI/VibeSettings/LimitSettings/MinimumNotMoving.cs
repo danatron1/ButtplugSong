@@ -22,7 +22,7 @@ internal class MinimumNotMoving : MinimumBase
     }
     private void Update(float realTime, float timerTime)
     {
-        if (Moving()) NotMovingTime = 0;
+        if (!Enabled || Moving()) NotMovingTime = 0;
         else NotMovingTime += realTime; //should this use timerTime? Probably, but I woke up on the evil side of bed today.
     }
     public override bool IsRelevant() => NotMovingTime > Delay;

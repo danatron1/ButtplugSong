@@ -15,9 +15,10 @@ internal class LimitsSettings : GUISection, IPresetLoadable
     internal readonly Toggle _minimumsEnabled;
     protected readonly Toggle _minimumsStack;
     protected readonly Label _minimumsStackLabel;
-
+    protected readonly Toggle _stopWhileTimerPaused;
     public float MasterMaxPower { get => _masterMaxPower.value / 100; set => _masterMaxPower.value = value * 100; }
     public float MasterMaxTimer { get => _masterMaxTimer.value; set => _masterMaxTimer.value = value; }
+    public bool StopForPausedTimer => _stopWhileTimerPaused.value && !TimerSettings.ShouldTimerCountDown(Vibe.UI.Timer?.TimerCountdownMode ?? CountdownMode.Never);
     public LimitsSettings() : base("Limits")
     {
         MinimumBase.limitsSettings = this;
@@ -31,6 +32,8 @@ internal class LimitsSettings : GUISection, IPresetLoadable
         _minimumsStack = Get<Toggle>("MinimumsStack");
         _minimumsStack.SetupSaving(false).DependsOn(_minimumsEnabled).RegisterValueChangedCallback(MinimumsStackChanged);
         _minimumsStackLabel = Get<Label>("MinimumsStackLabel");
+        _stopWhileTimerPaused = Get<Toggle>("StopWhileTimerPaused");
+        _stopWhileTimerPaused.SetupSaving(false).DependsOn(_minimumsEnabled);
 
         Minimums =
         [
@@ -75,6 +78,7 @@ internal class LimitsSettings : GUISection, IPresetLoadable
     }
     private float GetMinPower()
     {
+        if (!_minimumsEnabled.value || StopForPausedTimer) return 0;
         float min = _minimumsStack.value ? Minimums.Sum(x => x.Minimum) : Minimums.Max(x => x.Minimum);
         return min.Clamp(0, Vibe.Logic.MaxPower); //never exceed the maximum
     }

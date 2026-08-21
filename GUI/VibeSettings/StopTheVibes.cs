@@ -64,6 +64,17 @@ internal class StopTheVibes : GUISection, IPresetLoadable
         ModHooks.OnTakeRosariesHook += CurrencyChanged;
         ModHooks.OnAddShardsHook += CurrencyChanged;
         ModHooks.OnTakeShardsHook += CurrencyChanged;
+
+        Vibe.NeedsUpdate += Update;
+
+        RecalculateCosts();
+    }
+    private bool gameplaySceneLastFrame = false;
+    private void Update(float realTime, float timerTime)
+    {
+        bool gameplayScene = HeroController.instance != null && HeroController.instance.isGameplayScene;
+        if (gameplayScene != gameplaySceneLastFrame) RecalculateCosts();
+        gameplaySceneLastFrame = gameplayScene;
     }
     public void SetToPreset(Preset preset)
     {

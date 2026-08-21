@@ -2,6 +2,8 @@
 
 Vibrator support for Hollow Knight: Silksong, for a hornier Hornet. 
 
+Ironically, not vibe-coded!
+
 ![see git.gay/danatron1/ButtplugSong for a fancy list of features](Images/features.png)
 
 ## Requirements
@@ -36,7 +38,5 @@ You will need:
 If you're still having issues (e.g. the mod is crashing), please contact me (danatron1) and send a copy of the `LogOutput.txt` debug log from your BepInEx folder. The path should look something like:
 
 `C:\Users\YourNameHere\AppData\Roaming\r2modmanPlus-local\HollowKnightSilksong\profiles\Default\BepInEx`
-
-Coded vibes, not vibe coded.
 
 What am I doing with my life.

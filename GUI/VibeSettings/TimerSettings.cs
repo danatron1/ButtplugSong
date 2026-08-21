@@ -140,7 +140,7 @@ internal class TimerSettings : GUISection, IPresetLoadable
         }
         return unscaledDeltaTime;
     }
-    private static bool ShouldTimerCountDown(CountdownMode mode)
+    internal static bool ShouldTimerCountDown(CountdownMode mode)
     {
         return mode switch
         {

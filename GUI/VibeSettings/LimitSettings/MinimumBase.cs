@@ -18,7 +18,8 @@ internal abstract class MinimumBase : GUISection, IPresetLoadable
     protected VisualElement LocalRoot;
     public float MinAmount { get => _minAmount.value / 100; set => _minAmount.value = value.Clamp(0, 1) * 100; }
     public float MinimumWhenActive => Mathf.Min(Vibe.Logic.MaxPower, MinAmount * _GetScaleEnabled());
-    public bool Active => _enabled.value && IsRelevant();
+    public bool Enabled => _minimumsEnabled.value && _enabled.value;
+    public bool Active => Enabled && IsRelevant();
     public float Minimum => Active ? MinimumWhenActive : 0;
     public MinimumBase(string identifier, bool enabledByDefault, float defaultAmount) : base(identifier)
     {
